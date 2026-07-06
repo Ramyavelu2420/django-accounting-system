@@ -1,0 +1,20 @@
+<div class="row g-3 mb-5 text-start">
+    {% for report in pinned_slots %}
+        <div class="col-md-2">
+            {% if report %}
+                <div class="pinned-active-card position-relative">
+                    <span class="position-absolute top-0 end-0 p-2 text-warning" style="cursor: pointer;" onclick="togglePinReport('{{ report.id }}', this)">
+                        <i class="bi bi-pin-fill"></i>
+                    </span>
+                    <i class="bi {{ report.icon }} text-primary fs-4 mb-2"></i>
+                    <span class="pinned-active-title">{{ report.name }}</span>
+                </div>
+            {% else %}
+                <div class="pinned-placeholder">
+                    <i class="bi bi-pin"></i>
+                    <span>Pin your report</span>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>

@@ -1,0 +1,144 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Apps Marketplace - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/apps.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="py-4 text-start">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0 text-dark" style="font-family: 'Outfit', sans-serif;">Apps Marketplace</h2>
+        <!-- Filters dropdown -->
+        <div class="d-flex gap-2" id="filter-tabs-container">
+            <a href="{% url 'apps_marketplace' %}" class="btn btn-sm {% if category == 'All' %}btn-primary active{% else %}btn-light{% endif %} px-3 fw-semibold">All</a>
+            <a href="{% url 'apps_marketplace' %}?category=Featured" class="btn btn-sm {% if category == 'Featured' %}btn-primary active{% else %}btn-light{% endif %} px-3 fw-semibold">Featured</a>
+            <a href="{% url 'apps_marketplace' %}?category=Paid" class="btn btn-sm {% if category == 'Paid' %}btn-primary active{% else %}btn-light{% endif %} px-3 fw-semibold">Paid</a>
+            <a href="{% url 'apps_marketplace' %}?category=Free" class="btn btn-sm {% if category == 'Free' %}btn-primary active{% else %}btn-light{% endif %} px-3 fw-semibold">Free</a>
+            <a href="{% url 'apps_marketplace' %}?category=Installed" class="btn btn-sm {% if category == 'Installed' %}btn-primary active{% else %}btn-light{% endif %} px-3 fw-semibold">Installed</a>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- 1. Top Paid Apps Section -->
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold text-dark mb-0" style="font-family: 'Outfit', sans-serif;">Top Paid</h4>
+            <a href="#" class="text-secondary text-decoration-none small fw-semibold">See all Top Paid &rarr;</a>
+        </div>
+        <div class="row g-4">
+            {% for app in top_paid %}
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="app-market-card">
+                        <div class="app-card-banner" style="background-color: {{ app.banner_color }};">
+                            <i class="bi {{ app.logo }}"></i>
+                        </div>
+                        <div class="app-card-body">
+                            <h5 class="app-card-title mb-1"><a href="{% url 'app_detail' app.slug %}" class="text-decoration-none text-dark">{{ app.name }}</a></h5>
+                            <span class="app-card-developer">by {{ app.developer }} v{{ app.version }}</span>
+                            <p class="app-card-desc">{{ app.description }}</p>
+                            <div class="app-card-footer">
+                                <span class="app-card-price">from ${{ app.price }}</span>
+                                <div>
+                                    {% if app.id in installed_app_ids %}
+                                        <a href="{% url 'open_app' app.id %}" class="btn btn-primary btn-sm px-3 fw-semibold">Open</a>
+                                    {% else %}
+                                        <a href="{% url 'install_app' app.id %}" class="btn btn-success btn-sm px-3 fw-semibold" style="background-color: var(--success-color);">Install</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-secondary">No paid apps matching search/filter.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 2. Featured Apps / New Section -->
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold text-dark mb-0" style="font-family: 'Outfit', sans-serif;">New</h4>
+            <a href="#" class="text-secondary text-decoration-none small fw-semibold">See all New &rarr;</a>
+        </div>
+        <div class="row g-4">
+            {% for app in new_apps %}
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="app-market-card">
+                        <div class="app-card-banner" style="background-color: {{ app.banner_color }};">
+                            <i class="bi {{ app.logo }}"></i>
+                        </div>
+                        <div class="app-card-body">
+                            <h5 class="app-card-title mb-1"><a href="{% url 'app_detail' app.slug %}" class="text-decoration-none text-dark">{{ app.name }}</a></h5>
+                            <span class="app-card-developer">by {{ app.developer }} v{{ app.version }}</span>
+                            <p class="app-card-desc">{{ app.description }}</p>
+                            <div class="app-card-footer">
+                                <span class="app-card-price">{% if app.is_paid %}from ${{ app.price }}{% else %}Free{% endif %}</span>
+                                <div>
+                                    {% if app.id in installed_app_ids %}
+                                        <a href="{% url 'open_app' app.id %}" class="btn btn-primary btn-sm px-3 fw-semibold">Open</a>
+                                    {% else %}
+                                        <a href="{% url 'install_app' app.id %}" class="btn btn-success btn-sm px-3 fw-semibold" style="background-color: var(--success-color);">Install</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-secondary">No featured/new apps matching search/filter.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 3. Top Free Section -->
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold text-dark mb-0" style="font-family: 'Outfit', sans-serif;">Top Free</h4>
+            <a href="#" class="text-secondary text-decoration-none small fw-semibold">See all Top Free &rarr;</a>
+        </div>
+        <div class="row g-4">
+            {% for app in top_free %}
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="app-market-card">
+                        <div class="app-card-banner" style="background-color: {{ app.banner_color }};">
+                            <i class="bi {{ app.logo }}"></i>
+                        </div>
+                        <div class="app-card-body">
+                            <h5 class="app-card-title mb-1"><a href="{% url 'app_detail' app.slug %}" class="text-decoration-none text-dark">{{ app.name }}</a></h5>
+                            <span class="app-card-developer">by {{ app.developer }} v{{ app.version }}</span>
+                            <p class="app-card-desc">{{ app.description }}</p>
+                            <div class="app-card-footer">
+                                <span class="app-card-price">Free</span>
+                                <div>
+                                    {% if app.id in installed_app_ids %}
+                                        <a href="{% url 'open_app' app.id %}" class="btn btn-primary btn-sm px-3 fw-semibold">Open</a>
+                                    {% else %}
+                                        <a href="{% url 'install_app' app.id %}" class="btn btn-success btn-sm px-3 fw-semibold" style="background-color: var(--success-color);">Install</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-secondary">No free apps matching search/filter.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

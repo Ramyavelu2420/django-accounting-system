@@ -1,0 +1,111 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Bills - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/bills.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row align-items-center g-5 py-4">
+    <!-- Left Section: Navigation Options -->
+    <div class="col-lg-6 text-start">
+        <h2 class="fw-bold text-dark mb-2" style="font-family: 'Outfit', sans-serif;">Bills</h2>
+        <p class="text-secondary small mb-5" style="max-width: 500px;">Bills can be one time or recurring. They indicate what you owe your vendors for the products or services you purchase.</p>
+        
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Navigation Cards -->
+        <div class="w-100" style="max-width: 540px;">
+            <!-- New Bill -->
+            <a href="{% url 'bill_new' %}" class="bill-card">
+                <div class="bill-card-left">
+                    <span class="bill-card-title">New Bill <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
+                    <span class="bill-card-desc">Enter the details and create your first bill</span>
+                </div>
+                <i class="bi bi-chevron-right bill-card-chevron"></i>
+            </a>
+            
+            <!-- Import Bills -->
+            <a href="{% url 'bill_import' %}" class="bill-card">
+                <div class="bill-card-left">
+                    <span class="bill-card-title">Import Bills</span>
+                    <span class="bill-card-desc">Import your existing bills with a single click</span>
+                </div>
+                <i class="bi bi-chevron-right bill-card-chevron"></i>
+            </a>
+            
+            <!-- Import Pro Bills -->
+            <a href="#" class="bill-card">
+                <div class="bill-card-left">
+                    <span class="bill-card-title">Import Pro bills <span class="badge bg-light text-success border px-2 py-0.5 small fw-semibold rounded-pill">Beta</span></span>
+                    <span class="bill-card-desc">Import data using saved templates for quick processing</span>
+                </div>
+                <i class="bi bi-chevron-right bill-card-chevron"></i>
+            </a>
+
+            <!-- Receipts -->
+            <a href="#" class="bill-card">
+                <div class="bill-card-left">
+                    <span class="bill-card-title">Receipts</span>
+                    <span class="bill-card-desc">Save time recording receipts by uploading receipt images</span>
+                </div>
+                <i class="bi bi-chevron-right bill-card-chevron"></i>
+            </a>
+            
+            <!-- Debit Notes -->
+            <a href="#" class="bill-card">
+                <div class="bill-card-left">
+                    <span class="bill-card-title">Debit Notes</span>
+                    <span class="bill-card-desc">Issue debit notes to vendors for returning goods</span>
+                </div>
+                <i class="bi bi-chevron-right bill-card-chevron"></i>
+            </a>
+
+            <!-- Purchase Orders -->
+            <a href="#" class="bill-card">
+                <div class="bill-card-left">
+                    <span class="bill-card-title">Purchase Orders</span>
+                    <span class="bill-card-desc">Create purchase orders for products ready to be shipped or delivered</span>
+                </div>
+                <i class="bi bi-chevron-right bill-card-chevron"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Right Section: unDraw Vector SVG (Two guys carrying folder) -->
+    <div class="col-lg-6 d-flex justify-content-center align-items-center">
+        <!-- SVG Graphic simulating Screenshot-1 bills carrying file -->
+        <svg class="img-fluid" width="400" height="320" viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="200" cy="160" r="100" fill="#f8fafc"/>
+            
+            <!-- Large folder -->
+            <rect x="140" y="110" width="120" height="80" rx="6" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="4"/>
+            <path d="M140 130 L260 130" stroke="#cbd5e1" stroke-width="2"/>
+            
+            <!-- Guy Left -->
+            <circle cx="110" cy="140" r="10" fill="#fdba74"/>
+            <path d="M100 152 L120 152 L115 200 L105 200 Z" fill="#2563eb"/>
+            <!-- Guy Right -->
+            <circle cx="290" cy="140" r="10" fill="#fdba74"/>
+            <path d="M280 152 L300 152 L295 200 L285 200 Z" fill="#059669"/>
+            
+            <!-- Shaking legs -->
+            <line x1="107" y1="200" x2="102" y2="250" stroke="#1e293b" stroke-width="5"/>
+            <line x1="113" y1="200" x2="118" y2="250" stroke="#1e293b" stroke-width="5"/>
+            <line x1="287" y1="200" x2="282" y2="250" stroke="#1e293b" stroke-width="5"/>
+            <line x1="293" y1="200" x2="298" y2="250" stroke="#1e293b" stroke-width="5"/>
+        </svg>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+<!-- Section 1: General -->
+<div class="mb-5">
+    <h4 class="form-section-title">General</h4>
+    <p class="text-secondary small mb-4">Use credit card type for negative opening balance. The number is essential to reconcile accounts correctly. Default account will record all transactions if not selected otherwise.</p>
+
+    <div class="row g-3">
+        <!-- Type -->
+        <div class="col-12">
+            <label class="form-label fw-semibold small text-secondary">Type *</label>
+            <div class="type-radio-group">
+                <input type="radio" name="type" value="Bank" id="type_bank" {% if form.type.value == 'Bank' or not form.type.value %}checked{% endif %}>
+                <label for="type_bank">Bank</label>
+                <input type="radio" name="type" value="Credit Card" id="type_credit" {% if form.type.value == 'Credit Card' %}checked{% endif %}>
+                <label for="type_credit">Credit Card</label>
+            </div>
+        </div>
+
+        <!-- Name -->
+        <div class="col-12">
+            <label class="form-label fw-semibold small text-secondary">Name *</label>
+            {{ form.name }}
+            {% if form.name.errors %}
+                <div class="invalid-feedback text-danger d-block">{{ form.name.errors.as_text }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Number -->
+        <div class="col-12">
+            <label class="form-label fw-semibold small text-secondary">Number *</label>
+            {{ form.number }}
+            {% if form.number.errors %}
+                <div class="invalid-feedback text-danger d-block">{{ form.number.errors.as_text }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Currency -->
+        <div class="col-md-6">
+            <label class="form-label fw-semibold small text-secondary">Currency *</label>
+            {{ form.currency }}
+        </div>
+
+        <!-- Opening Balance -->
+        <div class="col-md-6">
+            <label class="form-label fw-semibold small text-secondary">Opening Balance *</label>
+            {{ form.opening_balance }}
+            {% if form.opening_balance.errors %}
+                <div class="invalid-feedback text-danger d-block">{{ form.opening_balance.errors.as_text }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Default Account -->
+        <div class="col-12">
+            <label class="form-label fw-semibold small text-secondary">Default Account</label>
+            <div class="default-radio-group">
+                <div class="radio-yes">
+                    <input type="radio" name="default_account" value="True" id="default_yes" {% if form.default_account.value == True or form.default_account.value == 'True' %}checked{% endif %}>
+                    <label for="default_yes">Yes</label>
+                </div>
+                <div class="radio-no">
+                    <input type="radio" name="default_account" value="False" id="default_no" {% if form.default_account.value == False or form.default_account.value == 'False' or form.default_account.value is None %}checked{% endif %}>
+                    <label for="default_no">No</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section 2: Bank Information -->
+<div class="mb-5">
+    <h4 class="form-section-title">Bank</h4>
+    <p class="text-secondary small mb-4">You may have multiple bank accounts in more than one banks. Recording information about your bank will make it easier to match the transactions within your bank.</p>
+
+    <div class="row g-3">
+        <!-- Bank Name -->
+        <div class="col-md-6">
+            <label class="form-label fw-semibold small text-secondary">Bank Name</label>
+            {{ form.bank_name }}
+        </div>
+
+        <!-- Bank Phone -->
+        <div class="col-md-6">
+            <label class="form-label fw-semibold small text-secondary">Bank Phone</label>
+            {{ form.bank_phone }}
+        </div>
+
+        <!-- Bank Address -->
+        <div class="col-12">
+            <label class="form-label fw-semibold small text-secondary">Bank Address</label>
+            {{ form.bank_address }}
+        </div>
+    </div>
+</div>

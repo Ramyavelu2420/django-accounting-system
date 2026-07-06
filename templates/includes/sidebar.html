@@ -1,0 +1,130 @@
+{% load static %}
+<div class="sidebar bg-white border-end d-flex flex-column" id="sidebar">
+    <!-- Brand / Company Section -->
+    <div class="sidebar-brand d-flex align-items-center justify-content-between p-3 border-bottom">
+        <a href="{% url 'dashboard' %}" class="d-flex align-items-center text-decoration-none text-dark fw-bold fs-5">
+            <svg class="me-2 text-success" width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="40" stroke="#709f54" stroke-width="12" stroke-dasharray="180 60"/>
+                <circle cx="50" cy="50" r="20" fill="#709f54"/>
+            </svg>
+            <span class="company-name-text text-truncate" style="max-width: 140px; font-family: 'Outfit', sans-serif;">
+                {% if company %}
+                    {{ company.name }}
+                {% elif request.user.company %}
+                    {{ request.user.company.name }}
+                {% else %}
+                    Akaunting
+                {% endif %}
+            </span>
+        </a>
+        <button class="btn btn-sm d-lg-none text-secondary" id="sidebar-close-btn">
+            <i class="bi bi-x-lg fs-5"></i>
+        </button>
+    </div>
+
+    <!-- Navigation List -->
+    <div class="sidebar-menu flex-grow-1 py-3 overflow-y-auto">
+        <ul class="nav flex-column gap-1 px-2">
+            <!-- Dashboard -->
+            <li class="nav-item">
+                <a href="{% url 'dashboard' %}" class="nav-link d-flex align-items-center gap-3 px-3 py-2.5 rounded-3 {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            
+            <!-- Items -->
+            <li class="nav-item">
+                <a href="{% url 'items_list' %}" class="nav-link d-flex align-items-center gap-3 px-3 py-2.5 rounded-3 {% if request.resolver_match.url_name == 'items_list' or request.resolver_match.url_name == 'item_create' or request.resolver_match.url_name == 'item_import' or request.resolver_match.url_name == 'inventory' %}active{% endif %}">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Items</span>
+                </a>
+            </li>
+            
+            <!-- Sales Dropdown -->
+            <li class="nav-item">
+                <div class="dropdown-header-link d-flex align-items-center justify-content-between px-3 py-2.5 rounded-3" data-target="#sales-dropdown">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-receipt"></i>
+                        <span>Sales</span>
+                    </div>
+                    <i class="bi bi-chevron-down arrow-icon"></i>
+                </div>
+                <ul class="nav flex-column sidebar-dropdown-menu ps-5" id="sales-dropdown">
+                    <li class="nav-item"><a href="{% url 'invoices_list' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'invoices_list' or request.resolver_match.url_name == 'invoice_create' or request.resolver_match.url_name == 'invoice_detail' or request.resolver_match.url_name == 'invoice_edit' or request.resolver_match.url_name == 'invoice_import' %}active{% endif %}">Invoices</a></li>
+                    <li class="nav-item"><a href="{% url 'customer_home' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'customer_home' or request.resolver_match.url_name == 'customer_create' or request.resolver_match.url_name == 'customers_list' or request.resolver_match.url_name == 'customer_edit' or request.resolver_match.url_name == 'customer_import' %}active{% endif %}">Customers</a></li>
+                </ul>
+            </li>
+
+            <!-- Purchases Dropdown -->
+            <li class="nav-item">
+                <div class="dropdown-header-link d-flex align-items-center justify-content-between px-3 py-2.5 rounded-3" data-target="#purchases-dropdown">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-cart"></i>
+                        <span>Purchases</span>
+                    </div>
+                    <i class="bi bi-chevron-down arrow-icon"></i>
+                </div>
+                <ul class="nav flex-column sidebar-dropdown-menu ps-5" id="purchases-dropdown">
+                    <li class="nav-item"><a href="{% url 'bills_landing' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'bills_landing' or request.resolver_match.url_name == 'bill_new' or request.resolver_match.url_name == 'bill_list' or request.resolver_match.url_name == 'bill_import' %}active{% endif %}">Bills</a></li>
+                    <li class="nav-item"><a href="{% url 'vendor_home' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'vendor_home' or request.resolver_match.url_name == 'vendor_create' or request.resolver_match.url_name == 'vendors_list' or request.resolver_match.url_name == 'vendor_import' %}active{% endif %}">Vendors</a></li>
+                </ul>
+            </li>
+
+            <!-- Banking Dropdown -->
+            <li class="nav-item">
+                <div class="dropdown-header-link d-flex align-items-center justify-content-between px-3 py-2.5 rounded-3" data-target="#banking-dropdown">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-bank"></i>
+                        <span>Banking</span>
+                    </div>
+                    <i class="bi bi-chevron-down arrow-icon"></i>
+                </div>
+                <ul class="nav flex-column sidebar-dropdown-menu ps-5" id="banking-dropdown">
+                    <li class="nav-item"><a href="{% url 'account_list' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'account_list' or request.resolver_match.url_name == 'account_create' or request.resolver_match.url_name == 'account_edit' %}active{% endif %}">Accounts</a></li>
+                    <li class="nav-item"><a href="{% url 'transaction_list' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'transaction_list' or request.resolver_match.url_name == 'new_income' or request.resolver_match.url_name == 'new_expense' %}active{% endif %}">Transactions</a></li>
+                    <li class="nav-item"><a href="{% url 'transfers_landing' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'transfers_landing' or request.resolver_match.url_name == 'new_transfer' or request.resolver_match.url_name == 'import_transfers' %}active{% endif %}">Transfers</a></li>
+                    <li class="nav-item"><a href="{% url 'reconciliation_landing' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'reconciliation_landing' or request.resolver_match.url_name == 'new_reconciliation' %}active{% endif %}">Reconciliation</a></li>
+                </ul>
+            </li>
+
+            <!-- Double Entry -->
+            <li class="nav-item">
+                <div class="dropdown-header-link d-flex align-items-center justify-content-between px-3 py-2.5 rounded-3 {% if request.resolver_match.url_name == 'double_entry_landing' %}active{% endif %}" onclick="location.href='{% url 'double_entry_landing' %}'" style="cursor: pointer;">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-journal-text"></i>
+                        <span>Double-Entry</span>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Reports -->
+            <li class="nav-item">
+                <a href="{% url 'reports_landing' %}" class="nav-link d-flex align-items-center gap-3 px-3 py-2.5 rounded-3 {% if request.resolver_match.url_name == 'reports_landing' %}active{% endif %}">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+
+            <!-- Apps -->
+            <li class="nav-item">
+                <a href="{% url 'apps_marketplace' %}" class="nav-link d-flex align-items-center gap-3 px-3 py-2.5 rounded-3 {% if request.resolver_match.url_name == 'apps_marketplace' %}active{% endif %}">
+                    <i class="bi bi-grid"></i>
+                    <span>Apps</span>
+                </a>
+            </li>
+
+            <!-- Switch -->
+            <li class="nav-item">
+                <a href="#" class="nav-link d-flex align-items-center justify-content-between px-3 py-2.5 rounded-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-arrow-left-right"></i>
+                        <span>Switch</span>
+                    </div>
+                    <span class="badge bg-light text-dark-emphasis border px-2 py-1 small fw-semibold rounded-pill">New</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+</div>

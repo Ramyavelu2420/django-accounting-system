@@ -1,0 +1,243 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}{% if customer %}Edit Customer{% else %}New Customer{% endif %} - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/customer.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row g-5 py-4 text-start">
+    <div class="col-lg-8">
+        <!-- Header -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center gap-2">
+                <h2 class="fw-bold mb-0 text-dark" style="font-family: 'Outfit', sans-serif;">
+                    {% if customer %}Edit Customer{% else %}New Customer{% endif %}
+                </h2>
+                <i class="bi bi-star text-secondary fs-4"></i>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-light btn-sm border text-secondary fw-semibold">Custom Fields</button>
+                <button type="button" class="btn btn-light btn-sm border text-secondary fw-semibold">Projects</button>
+            </div>
+        </div>
+
+        <form method="POST" novalidate class="needs-validation">
+            {% csrf_token %}
+
+            <!-- General Section -->
+            <div class="mb-5">
+                <h4 class="form-section-title">General</h4>
+                <p class="text-secondary small mb-4">Your client's contact information will appear in invoices and their profiles. You can also allow your clients to login to track the invoices you send them by checking the box below.</p>
+
+                <div class="row g-3">
+                    <!-- Name -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold small text-secondary">Name <span class="text-danger">*</span></label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="invalid-feedback text-danger d-block">{{ form.name.errors.as_text }}</div>
+                        {% endif %}
+                    </div>
+                    <!-- Email & Invite Portal -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Email</label>
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+                    <div class="col-md-6 d-flex align-items-center pt-4 ps-4">
+                        <div class="form-check">
+                            {{ form.invite_to_client_portal }}
+                            <label class="form-check-label fw-semibold text-secondary small" for="id_invite_to_client_portal">
+                                Invite to Client Portal
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Phone -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Phone</label>
+                        {{ form.phone }}
+                        {{ form.phone.errors }}
+                    </div>
+                    <!-- Website -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Website</label>
+                        {{ form.website }}
+                        {{ form.website.errors }}
+                    </div>
+                    <!-- Reference -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Reference</label>
+                        {{ form.reference }}
+                        {{ form.reference.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Section -->
+            <div class="mb-5">
+                <h4 class="form-section-title">Billing</h4>
+                <p class="text-secondary small mb-4">The tax number appears in every invoice issued to the customer. The selected currency becomes the default currency for this customer.</p>
+
+                <div class="row g-3">
+                    <!-- Tax Number -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Tax Number</label>
+                        {{ form.tax_number }}
+                        {{ form.tax_number.errors }}
+                    </div>
+                    <!-- Currency -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Currency <span class="text-danger">*</span></label>
+                        {{ form.currency }}
+                        {% if form.currency.errors %}
+                            <div class="invalid-feedback text-danger d-block">{{ form.currency.errors.as_text }}</div>
+                        {% endif %}
+                    </div>
+                    <!-- Chart of Account -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Chart of Account</label>
+                        {{ form.chart_of_account }}
+                        {{ form.chart_of_account.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Section -->
+            <div class="mb-5">
+                <h4 class="form-section-title">Address</h4>
+                <p class="text-secondary small mb-4">The address is required for the invoices, so you need to add billing address details for your customer.</p>
+
+                <div class="row g-3">
+                    <!-- Address Finder -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold small text-secondary">Address Finder</label>
+                        <input type="text" class="form-control" placeholder="Enter Address Finder">
+                    </div>
+                    <!-- Address Textarea -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold small text-secondary">Address</label>
+                        {{ form.address }}
+                        {{ form.address.errors }}
+                    </div>
+                    <!-- Town/City -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Town / City</label>
+                        {{ form.city }}
+                        {{ form.city.errors }}
+                    </div>
+                    <!-- Zip code -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Postal / Zip Code</label>
+                        {{ form.postal_code }}
+                        {{ form.postal_code.errors }}
+                    </div>
+                    <!-- State -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Province / State</label>
+                        {{ form.state }}
+                        {{ form.state.errors }}
+                    </div>
+                    <!-- Country -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Country</label>
+                        {{ form.country }}
+                        {{ form.country.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Persons Section -->
+            <div class="mb-5">
+                <h4 class="form-section-title">Contact Persons</h4>
+                <p class="text-secondary small mb-4">To include additional recipients in an email as CC, add them as contact persons.</p>
+
+                <div class="table-responsive">
+                    <table class="table align-middle" style="font-size: 0.9rem;">
+                        <thead class="text-secondary small fw-bold">
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th style="width: 60px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="contact-persons-body">
+                            {% if customer and contacts %}
+                                {% for contact in contacts %}
+                                    <tr>
+                                        <td>
+                                            <input type="text" name="contact_name[]" value="{{ contact.name }}" class="form-control" placeholder="Name" required>
+                                        </td>
+                                        <td>
+                                            <input type="email" name="contact_email[]" value="{{ contact.email }}" class="form-control" placeholder="Email">
+                                        </td>
+                                        <td>
+                                            <input type="text" name="contact_phone[]" value="{{ contact.phone }}" class="form-control" placeholder="Phone">
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-outline-danger btn-sm btn-delete-contact"><i class="bi bi-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Start with one empty contact row -->
+                                <tr>
+                                    <td>
+                                        <input type="text" name="contact_name[]" class="form-control" placeholder="Name" required>
+                                    </td>
+                                    <td>
+                                        <input type="email" name="contact_email[]" class="form-control" placeholder="Email">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="contact_phone[]" class="form-control" placeholder="Phone">
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-outline-danger btn-sm btn-delete-contact"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Add dynamic row button -->
+                <button type="button" class="btn btn-link text-primary text-decoration-none fw-bold px-0 mt-2" id="btn-add-contact-row">
+                    <i class="bi bi-plus-lg"></i> Add a Contact Person
+                </button>
+            </div>
+
+            <!-- Footer Action Buttons -->
+            <div class="d-flex justify-content-end align-items-center gap-3 border-top pt-4 mb-5">
+                <a href="{% url 'customers_list' %}" class="btn btn-link text-secondary text-decoration-none fw-semibold">Cancel</a>
+                <button type="submit" class="btn btn-success px-5 fw-semibold" style="background-color: var(--success-color);">Save</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Right Section Graphic CRM -->
+    <div class="col-lg-4 d-flex flex-column align-items-center justify-content-start pt-5">
+        <div class="card border-0 bg-white shadow-sm p-4 rounded-3 text-center" style="max-width: 320px;">
+            <svg class="mb-4" width="160" height="130" viewBox="0 0 160 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- unDraw-like graphic showing users handshaking -->
+                <path d="M40 90 L60 90 L60 120 L40 120 Z" fill="#60a5fa"/>
+                <path d="M100 90 L120 90 L120 120 L100 120 Z" fill="#34d399"/>
+                
+                <circle cx="50" cy="70" r="10" fill="#fbcfe8"/>
+                <circle cx="110" cy="70" r="10" fill="#fbcfe8"/>
+                <!-- Shaking hands path -->
+                <path d="M60 80 Q80 75 100 80" stroke="#fbcfe8" stroke-width="4" fill="none"/>
+            </svg>
+            <h5 class="fw-bold mb-2">CRM</h5>
+            <p class="text-secondary small mb-3">Track every step of your customer journey, manage leads and opportunities, and analyze your sales pipeline.</p>
+            <a href="#" class="text-primary fw-semibold small text-decoration-none">Learn more</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/customer.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,219 @@
+/* ==========================================================================
+   ERP Responsive Breakpoints — Original Design
+   Desktop  : > 1200px
+   Laptop   : 992px – 1200px
+   Tablet   : 768px – 991px
+   Mobile   : < 768px
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Laptop  (≤ 1200px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+    .navbar-search {
+        max-width: 320px;
+    }
+
+    .navbar-search-kbd {
+        display: none;
+    }
+
+    .company-selector-btn span:not(.company-selector-icon) {
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .navbar-user-info {
+        display: none;
+    }
+
+    .erp-content {
+        padding: var(--spacing-md) var(--spacing-lg);
+        padding-top: calc(var(--navbar-height) + var(--spacing-md));
+    }
+}
+
+/* --------------------------------------------------------------------------
+   2. Tablet  (≤ 991px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 991px) {
+    /* Sidebar becomes off-canvas overlay */
+    .erp-sidebar {
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+
+    .erp-sidebar.mobile-open {
+        transform: translateX(0);
+        box-shadow: var(--shadow-xl);
+    }
+
+    /* Reset main panel */
+    .erp-main-panel {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    .erp-navbar {
+        left: 0 !important;
+    }
+
+    /* Show hamburger toggle */
+    .navbar-toggle {
+        display: flex;
+    }
+
+    /* Sidebar toggle */
+    .sidebar-toggle-btn {
+        display: none;
+    }
+
+    .navbar-search {
+        max-width: 260px;
+    }
+
+    .company-selector {
+        display: none;
+    }
+
+    .lang-selector {
+        display: none;
+    }
+
+    .erp-content {
+        padding: var(--spacing-md);
+        padding-top: calc(var(--navbar-height) + var(--spacing-md));
+    }
+}
+
+/* --------------------------------------------------------------------------
+   3. Mobile  (≤ 767px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 767px) {
+    :root {
+        --navbar-height: 56px;
+    }
+
+    .erp-navbar {
+        padding: 0 var(--spacing-md);
+    }
+
+    .navbar-search {
+        display: none;
+    }
+
+    .navbar-divider {
+        display: none;
+    }
+
+    .navbar-right {
+        gap: 2px;
+    }
+
+    .navbar-icon-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 1rem;
+    }
+
+    .fullscreen-btn {
+        display: none;
+    }
+
+    .navbar-user-btn {
+        padding: 0.25rem;
+    }
+
+    .navbar-user-avatar {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        font-size: 0.65rem;
+    }
+
+    .navbar-user-arrow {
+        display: none;
+    }
+
+    /* Footer */
+    .erp-footer {
+        padding: var(--spacing-md);
+        flex-direction: column;
+        text-align: center;
+        gap: var(--spacing-sm);
+    }
+
+    /* Notification dropdown */
+    .notification-dropdown {
+        right: -100px;
+        width: 300px;
+    }
+
+    /* User dropdown */
+    .user-dropdown {
+        right: -10px;
+        min-width: 200px;
+    }
+
+    /* Page header */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* Content */
+    .erp-content {
+        padding: var(--spacing-sm);
+        padding-top: calc(var(--navbar-height) + var(--spacing-sm));
+    }
+}
+
+/* --------------------------------------------------------------------------
+   4. Extra Small Mobile  (≤ 480px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+    .erp-sidebar {
+        width: 85vw;
+    }
+
+    .notification-dropdown {
+        right: -40px;
+        width: calc(100vw - 30px);
+    }
+
+    .user-dropdown {
+        right: -5px;
+        min-width: 180px;
+    }
+
+    .theme-toggle {
+        display: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   5. Print Styles
+   -------------------------------------------------------------------------- */
+@media print {
+    .erp-sidebar,
+    .erp-navbar,
+    .erp-footer,
+    .sidebar-overlay {
+        display: none !important;
+    }
+
+    .erp-main-panel {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    .erp-content {
+        padding: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    body {
+        background: #ffffff;
+    }
+}

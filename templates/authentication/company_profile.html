@@ -1,0 +1,88 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Company Profile - Onboarding Wizard{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/auth.css' %}" rel="stylesheet">
+<link href="{% static 'css/onboarding.css' %}" rel="stylesheet">
+<style>
+    body {
+        background-color: #eef0f3;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="onboarding-wizard-container">
+    <!-- Steps Indicator -->
+    <div class="wizard-steps">
+        <div class="wizard-step-item active">Company</div>
+        <div class="wizard-step-item text-muted">Profile</div>
+        <div class="wizard-step-item text-muted">Ready</div>
+    </div>
+    
+    <!-- Form -->
+    <form method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <div class="row g-4 mb-5">
+            <!-- Left inputs column -->
+            <div class="col-md-7">
+                <div class="row g-3">
+                    <div class="col-12 text-start">
+                        <label class="form-label fw-semibold small text-secondary mb-1">Tax Number</label>
+                        {{ form.tax_number }}
+                        {{ form.tax_number.errors }}
+                    </div>
+                    
+                    <div class="col-12 text-start">
+                        <label class="form-label fw-semibold small text-secondary mb-1">Financial Year Start</label>
+                        {{ form.financial_year }}
+                        {{ form.financial_year.errors }}
+                    </div>
+                    
+                    <div class="col-12 text-start">
+                        <label class="form-label fw-semibold small text-secondary mb-1">Address</label>
+                        {{ form.address }}
+                        {{ form.address.errors }}
+                    </div>
+                    
+                    <div class="col-12 text-start">
+                        <label class="form-label fw-semibold small text-secondary mb-1">Country</label>
+                        {{ form.country }}
+                        {{ form.country.errors }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right logo upload column -->
+            <div class="col-md-5 d-flex flex-column justify-content-center text-start">
+                <label class="form-label fw-semibold small text-secondary mb-2">Logo</label>
+                <!-- Drag and drop zone -->
+                <div class="drag-drop-zone" id="logo-drop-zone">
+                    <i class="bi bi-cloud-arrow-up text-secondary"></i>
+                    <span class="small text-muted" id="drop-zone-text">Drop files here to upload</span>
+                    {{ form.logo }}
+                </div>
+                {{ form.logo.errors }}
+            </div>
+        </div>
+        
+        <!-- Bottom Actions -->
+        <div class="d-flex justify-content-between align-items-center border-top pt-4">
+            <button type="submit" name="skip" value="true" class="btn btn-link text-secondary text-decoration-none fw-semibold">Skip this step</button>
+            <button type="submit" class="btn btn-success-custom px-5 fw-semibold" style="background-color: var(--success-color);">Save</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/onboarding.js' %}"></script>
+{% endblock %}

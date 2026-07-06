@@ -1,0 +1,87 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Vendors - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/vendors.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row align-items-center g-5 py-4">
+    <!-- Left Section: Navigation Options -->
+    <div class="col-lg-6 text-start">
+        <h2 class="fw-bold text-dark mb-2" style="font-family: 'Outfit', sans-serif;">Vendors</h2>
+        <p class="text-secondary small mb-5" style="max-width: 500px;">Vendors are required if you want to create bills. You can see the balance you owe and filter reports by the vendor.</p>
+        
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Navigation Cards -->
+        <div class="w-100" style="max-width: 540px;">
+            <!-- New Vendor -->
+            <a href="{% url 'vendor_create' %}" class="vendor-card">
+                <div class="vendor-card-left">
+                    <span class="vendor-card-title">New Vendor <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
+                    <span class="vendor-card-desc">Enter the details and create your first vendor</span>
+                </div>
+                <i class="bi bi-chevron-right vendor-card-chevron"></i>
+            </a>
+            
+            <!-- Import Vendors -->
+            <a href="{% url 'vendor_import' %}" class="vendor-card">
+                <div class="vendor-card-left">
+                    <span class="vendor-card-title">Import Vendors</span>
+                    <span class="vendor-card-desc">Import your existing vendors with a single click</span>
+                </div>
+                <i class="bi bi-chevron-right vendor-card-chevron"></i>
+            </a>
+            
+            <!-- Import Pro Vendors -->
+            <div class="vendor-card opacity-50" style="cursor: not-allowed;">
+                <div class="vendor-card-left">
+                    <span class="vendor-card-title">Import Pro vendors <span class="badge bg-light text-success border px-2 py-0.5 small fw-semibold rounded-pill">Beta</span></span>
+                    <span class="vendor-card-desc">Import data using saved templates for quick processing</span>
+                </div>
+                <i class="bi bi-chevron-right vendor-card-chevron"></i>
+            </div>
+
+            <!-- Payroll -->
+            <div class="vendor-card opacity-50" style="cursor: not-allowed;">
+                <div class="vendor-card-left">
+                    <span class="vendor-card-title">Payroll</span>
+                    <span class="vendor-card-desc">Reduce time spent on employee payments, benefits, and deductions</span>
+                </div>
+                <i class="bi bi-chevron-right vendor-card-chevron"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Section: unDraw Vector SVG (Character jumping/balancing on box) -->
+    <div class="col-lg-6 d-flex justify-content-center align-items-center">
+        <!-- SVG Graphic simulating Screenshot-1 jumping character -->
+        <svg class="img-fluid" width="400" height="320" viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="200" cy="160" r="100" fill="#f8fafc"/>
+            
+            <!-- Box -->
+            <rect x="140" y="160" width="120" height="90" rx="6" fill="#d97706" stroke="#b45309" stroke-width="4"/>
+            <path d="M140 180 L260 180" stroke="#b45309" stroke-width="2"/>
+            
+            <!-- Character jumping -->
+            <circle cx="200" cy="80" r="12" fill="#fdba74"/>
+            <path d="M190 92 L210 92 L205 130 L195 130 Z" fill="#2563eb"/>
+            <!-- Legs bending/jumping -->
+            <line x1="195" y1="130" x2="185" y2="160" stroke="#1e293b" stroke-width="5"/>
+            <line x1="205" y1="130" x2="215" y2="160" stroke="#1e293b" stroke-width="5"/>
+        </svg>
+    </div>
+</div>
+{% endblock %}

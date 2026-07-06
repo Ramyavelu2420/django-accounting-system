@@ -1,0 +1,74 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Bills - Akaunting{% endblock %}
+
+{% block content %}
+<div class="py-4 text-start">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-dark" style="font-family: 'Outfit', sans-serif;">Bills</h2>
+            <p class="text-secondary small mb-0">Overview of what you owe your vendors.</p>
+        </div>
+        <a href="{% url 'bill_new' %}" class="btn btn-success fw-semibold" style="background-color: var(--success-color);"><i class="bi bi-plus-lg me-1"></i> Add Bill</a>
+    </div>
+
+    {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Bootstrap Table -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                    <thead class="table-light text-secondary small fw-bold">
+                        <tr>
+                            <th class="ps-4 py-3">VENDOR</th>
+                            <th class="py-3">BILL NUMBER</th>
+                            <th class="py-3">BILL DATE</th>
+                            <th class="py-3">DUE DATE</th>
+                            <th class="py-3">TOTAL</th>
+                            <th class="py-3">STATUS</th>
+                            <th class="pe-4 py-3 text-end">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in bills %}
+                            <tr>
+                                <td class="ps-4 fw-semibold text-dark">{{ bill.vendor.vendor_name }}</td>
+                                <td>{{ bill.bill_number }}</td>
+                                <td>{{ bill.bill_date|date:"d M Y" }}</td>
+                                <td>{{ bill.due_date|date:"d M Y" }}</td>
+                                <td class="fw-bold text-dark">₹{{ bill.total }}</td>
+                                <td><span class="badge bg-light text-dark border px-2 py-1">{{ bill.status }}</span></td>
+                                <td class="pe-4 text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-secondary">
+                                    <i class="bi bi-receipt fs-1 d-block mb-3 text-muted"></i>
+                                    <h5>No bills found</h5>
+                                    <p class="small text-muted mb-0">Create new vendor bills or import them from Excel spreadsheets.</p>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

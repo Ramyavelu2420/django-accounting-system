@@ -1,0 +1,163 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}New Item - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/items.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row g-5 py-4 text-start">
+    <div class="col-lg-8">
+        <!-- Header -->
+        <div class="d-flex align-items-center gap-2 mb-4">
+            <h2 class="fw-bold mb-0 text-dark" style="font-family: 'Outfit', sans-serif;">New Item</h2>
+            <i class="bi bi-star text-secondary fs-4"></i>
+        </div>
+
+        <form method="POST" novalidate class="needs-validation">
+            {% csrf_token %}
+            {{ form.type }} <!-- Hidden Input -->
+
+            <!-- General Section -->
+            <div class="mb-5">
+                <h4 class="form-section-title">General</h4>
+                <p class="text-secondary small mb-4">Select a category to make your reports more detailed. The description will be populated when the item is selected in an invoice or bill.</p>
+                
+                <!-- Type Selection -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold small text-secondary d-block mb-2">Type <span class="text-danger">*</span></label>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn type-toggle-btn rounded-start active" id="btn-type-product">Product</button>
+                        <button type="button" class="btn type-toggle-btn rounded-end" id="btn-type-service">Service</button>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Name -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary mb-1">Name <span class="text-danger">*</span></label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="invalid-feedback text-danger">{{ form.name.errors.as_text }}</div>
+                        {% endif %}
+                    </div>
+                    <!-- Category -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary mb-1">Category</label>
+                        {{ form.category }}
+                        {{ form.category.errors }}
+                    </div>
+                    <!-- Description -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold small text-secondary mb-1">Description</label>
+                        {{ form.description }}
+                        {{ form.description.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Section -->
+            <div class="mb-5">
+                <h4 class="form-section-title">Billing</h4>
+                <p class="text-secondary small mb-4">Sale Information is used within invoices, and Purchase Information is used within bills. Tax will be applied to both invoices and bills.</p>
+
+                <!-- Information Checkboxes -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            {{ form.sale_enabled }}
+                            <label class="form-check-label fw-semibold text-secondary small" for="id_sale_enabled">
+                                Sale Information
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            {{ form.purchase_enabled }}
+                            <label class="form-check-label fw-semibold text-secondary small" for="id_purchase_enabled">
+                                Purchase Information
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Grid -->
+                <div class="row g-4">
+                    <!-- Left Side (Sale) -->
+                    <div class="col-md-6">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-secondary mb-1">Sale Price <span class="text-danger">*</span></label>
+                                {{ form.sale_price }}
+                                {% if form.sale_price.errors %}
+                                    <div class="invalid-feedback text-danger">{{ form.sale_price.errors.as_text }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-secondary mb-1">Income Account</label>
+                                {{ form.income_account }}
+                                {{ form.income_account.errors }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side (Purchase) -->
+                    <div class="col-md-6">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-secondary mb-1">Purchase Price <span class="text-danger">*</span></label>
+                                {{ form.purchase_price }}
+                                {% if form.purchase_price.errors %}
+                                    <div class="invalid-feedback text-danger">{{ form.purchase_price.errors.as_text }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-secondary mb-1">Expense Account</label>
+                                {{ form.expense_account }}
+                                {{ form.expense_account.errors }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tax (Shared) -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary mb-1">Tax</label>
+                        {{ form.tax }}
+                        {{ form.tax.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-end align-items-center gap-3 border-top pt-4">
+                <a href="{% url 'items_list' %}" class="btn btn-link text-secondary text-decoration-none fw-semibold">Cancel</a>
+                <button type="submit" class="btn btn-success-custom px-5 fw-semibold" style="background-color: var(--success-color);">Save</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Right Side Illustration Box -->
+    <div class="col-lg-4 d-flex flex-column align-items-center justify-content-start pt-5">
+        <div class="card border-0 bg-white shadow-sm p-4 rounded-3 text-center" style="max-width: 320px;">
+            <svg class="mb-4" width="160" height="130" viewBox="0 0 160 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Box carried by person -->
+                <rect x="40" y="40" width="80" height="60" rx="4" fill="#ca8a04"/>
+                <line x1="80" y1="40" x2="80" y2="100" stroke="#fef08a" stroke-width="2"/>
+                
+                <!-- Person -->
+                <circle cx="80" cy="20" r="10" fill="#fbcfe8"/>
+                <path d="M70 30 L90 30 L85 60 L75 60 Z" fill="#60a5fa"/>
+            </svg>
+            <h5 class="fw-bold mb-2">Inventory</h5>
+            <p class="text-secondary small mb-3">Stock management, SKU, item groups and variants, transfer orders, adjustments, warehouses, histories, and more.</p>
+            <a href="#" class="text-primary fw-semibold small text-decoration-none">Learn more</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/items.js' %}"></script>
+{% endblock %}

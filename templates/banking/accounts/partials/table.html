@@ -1,0 +1,50 @@
+<div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+        <thead class="table-light text-secondary small fw-bold">
+            <tr>
+                <th class="ps-4 py-3" style="width: 40px;"><input type="checkbox" class="form-check-input"></th>
+                <th class="py-3"><a href="?q={{ query }}&sort={% if sort_by == 'name' %}-name{% else %}name{% endif %}" class="text-decoration-none text-secondary">NAME <i class="bi bi-arrow-down-up ms-1"></i></a></th>
+                <th class="py-3">ACCOUNT NUMBER</th>
+                <th class="py-3">BANK NAME</th>
+                <th class="py-3">BANK PHONE</th>
+                <th class="py-3"><a href="?q={{ query }}&sort={% if sort_by == 'opening_balance' %}-opening_balance{% else %}opening_balance{% endif %}" class="text-decoration-none text-secondary">CURRENT BALANCE <i class="bi bi-arrow-down-up ms-1"></i></a></th>
+                <th class="pe-4 py-3 text-end">ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for account in page_obj %}
+                <tr>
+                    <td class="ps-4"><input type="checkbox" class="form-check-input"></td>
+                    <td class="fw-semibold text-dark">
+                        <div class="d-flex align-items-center gap-2">
+                            <span>{{ account.name }}</span>
+                            {% if account.default_account %}
+                                <i class="bi bi-lock-fill text-secondary small"></i>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>{{ account.number }}</td>
+                    <td>{{ account.bank_name|default:"N/A" }}</td>
+                    <td>{{ account.bank_phone|default:"N/A" }}</td>
+                    <td class="fw-bold text-dark">₹{{ account.opening_balance }}</td>
+                    <td class="pe-4 text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'account_edit' account.id %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="triggerDeleteModal('{{ account.id }}', '{{ account.name }}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-secondary">
+                        <i class="bi bi-bank fs-1 d-block mb-3 text-muted"></i>
+                        <h5>No accounts found</h5>
+                        <p class="small text-muted mb-0">Create new bank accounts or credit cards to start banking.</p>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

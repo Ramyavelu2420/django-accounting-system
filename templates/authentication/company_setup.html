@@ -1,0 +1,84 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Create Company - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/auth.css' %}" rel="stylesheet">
+<link href="{% static 'css/onboarding.css' %}" rel="stylesheet">
+<style>
+    .split-left-hero-onboarding {
+        flex: 1.1;
+        background: linear-gradient(135deg, rgba(86, 88, 149, 0.95) 0%, rgba(86, 88, 149, 0.8) 100%), 
+                    url('https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?q=80&w=1200&auto=format&fit=crop') no-repeat center center;
+        background-size: cover;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 10% 7%;
+        color: #ffffff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="split-container">
+    <!-- Left Hero -->
+    <div class="split-left-hero-onboarding text-start">
+        <h1 class="display-3 fw-bold mb-3">Hooray!</h1>
+        <p class="fs-4 opacity-90 mb-0" style="font-family: var(--font-family-sans);">Let's create your first company!</p>
+    </div>
+    
+    <!-- Right Content -->
+    <div class="split-right-content">
+        <div class="w-100" style="max-width: 540px; padding: 2rem;">
+            <!-- Logo -->
+            <div class="text-center mb-5">
+                <svg width="72" height="72" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="40" stroke="#709f54" stroke-width="12" stroke-dasharray="180 60"/>
+                    <circle cx="50" cy="50" r="20" fill="#709f54"/>
+                </svg>
+            </div>
+            
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                <div class="row g-4">
+                    <!-- Company Name -->
+                    <div class="col-md-6 text-start">
+                        <label class="form-label fw-semibold small text-secondary mb-1">Company Name <span class="text-danger">*</span></label>
+                        {{ form.name }}
+                        {{ form.name.errors }}
+                    </div>
+                    
+                    <!-- Language -->
+                    <div class="col-md-6 text-start">
+                        <label class="form-label fw-semibold small text-secondary mb-1">Language <span class="text-danger">*</span></label>
+                        {{ form.language }}
+                        {{ form.language.errors }}
+                    </div>
+                    
+                    <!-- Currency -->
+                    <div class="col-md-6 text-start">
+                        <label class="form-label fw-semibold small text-secondary mb-1">Business Currency <span class="text-danger">*</span></label>
+                        {{ form.currency }}
+                        {{ form.currency.errors }}
+                    </div>
+                    
+                    <!-- Country -->
+                    <div class="col-md-6 text-start">
+                        <label class="form-label fw-semibold small text-secondary mb-1">Where is your company based? <span class="text-danger">*</span></label>
+                        {{ form.country }}
+                        {{ form.country.errors }}
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="col-12 mt-5">
+                        <button type="submit" class="btn btn-primary-custom w-100 py-2.5 fw-semibold" style="background-color: var(--primary-color);">Create a company</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

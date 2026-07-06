@@ -1,0 +1,81 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Onboarding Complete - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/auth.css' %}" rel="stylesheet">
+<link href="{% static 'css/onboarding.css' %}" rel="stylesheet">
+<style>
+    body {
+        background-color: #eef0f3;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem 1rem;
+    }
+    .wizard-step-item.completed {
+        color: var(--primary-color);
+    }
+    .wizard-step-item.completed::after {
+        content: '';
+        position: absolute;
+        bottom: -18px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background-color: var(--primary-color);
+        border-radius: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="onboarding-wizard-container text-center">
+    <!-- Steps Indicator -->
+    <div class="wizard-steps mb-5">
+        <div class="wizard-step-item completed">Company</div>
+        <div class="wizard-step-item completed">Profile</div>
+        <div class="wizard-step-item completed">Ready</div>
+    </div>
+    
+    <!-- Success Icon -->
+    <div class="mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle" style="width: 80px; height: 80px;">
+            <i class="bi bi-check-circle-fill fs-1"></i>
+        </div>
+    </div>
+    
+    <h3 class="fw-bold text-dark mb-2">You're all set!</h3>
+    <p class="text-secondary mb-4">We've configured your account and your company profile is now ready.</p>
+    
+    <!-- Summary Card -->
+    <div class="card border-0 bg-light p-4 rounded-3 text-start mx-auto mb-5" style="max-width: 440px;">
+        <h5 class="fw-bold mb-3 text-secondary small text-uppercase tracking-wider">Company Details</h5>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Company Name:</span>
+            <span class="fw-semibold text-dark">{{ company.name }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Country:</span>
+            <span class="fw-semibold text-dark">{{ company.country }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Language:</span>
+            <span class="fw-semibold text-dark">{{ company.get_language_display }}</span>
+        </div>
+        <div class="d-flex justify-content-between">
+            <span class="text-muted">Currency:</span>
+            <span class="fw-semibold text-dark">{{ company.get_currency_display }}</span>
+        </div>
+    </div>
+    
+    <!-- Dashboard Button -->
+    <div class="d-flex gap-3 justify-content-center">
+        <a href="{% url 'landing' %}" class="btn btn-outline-secondary px-4 py-2.5 fw-semibold">Back to Home</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-primary-custom px-5 py-2.5 fw-semibold" style="background-color: var(--primary-color);">Go to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

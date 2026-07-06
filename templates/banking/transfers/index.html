@@ -1,0 +1,210 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Transfers - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/transfer.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block block_title %}Transfers{% endblock %}
+
+{% block content %}
+<div class="row align-items-center g-5 py-4">
+    <!-- Left Section: Navigation Cards -->
+    <div class="col-lg-6 text-start">
+        <h2 class="fw-bold text-dark mb-2" style="font-family: 'Outfit', sans-serif;">Transfers</h2>
+        <p class="text-secondary small mb-5" style="max-width: 500px;">Transfers allow you to move money from one account to another, whether they use the same currency or not.</p>
+        
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Navigation Cards -->
+        <div class="w-100" style="max-width: 540px;">
+            <!-- New Transfer -->
+            <a href="{% url 'new_transfer' %}" class="transfer-card">
+                <div class="transfer-card-left">
+                    <span class="transfer-card-title">New Transfer <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
+                    <span class="transfer-card-desc">Enter the details and create your first transfer</span>
+                </div>
+                <i class="bi bi-chevron-right transfer-card-chevron"></i>
+            </a>
+            
+            <!-- Import Transfers -->
+            <a href="{% url 'import_transfers' %}" class="transfer-card">
+                <div class="transfer-card-left">
+                    <span class="transfer-card-title">Import Transfers</span>
+                    <span class="transfer-card-desc">Import your existing transfers with a single click</span>
+                </div>
+                <i class="bi bi-chevron-right transfer-card-chevron"></i>
+            </a>
+            
+            <!-- Import Pro Transfers (Beta) -->
+            <a href="#" class="transfer-card">
+                <div class="transfer-card-left">
+                    <span class="transfer-card-title">Import Pro transfers <span class="badge bg-success text-white small px-2 py-0.5" style="font-size: 0.7rem;">Beta</span></span>
+                    <span class="transfer-card-desc">Import data using saved templates for quick processing</span>
+                </div>
+                <i class="bi bi-chevron-right transfer-card-chevron"></i>
+            </a>
+            
+            <!-- Connect Your Bank -->
+            <a href="#" class="transfer-card">
+                <div class="transfer-card-left">
+                    <span class="transfer-card-title">Connect Your Bank</span>
+                    <span class="transfer-card-desc">Import transactions securely to automate your bookkeeping and reports</span>
+                </div>
+                <i class="bi bi-chevron-right transfer-card-chevron"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Right Section: two guys high-fiving vector SVG graphic -->
+    <div class="col-lg-6 d-flex justify-content-center align-items-center">
+        <!-- SVG Graphic simulating the Screenshot-1 transfers workspace illustration -->
+        <svg class="img-fluid" width="400" height="320" viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="200" cy="160" r="100" fill="#f8fafc"/>
+            
+            <!-- Floor / Shadows -->
+            <ellipse cx="200" cy="280" rx="120" ry="12" fill="#cbd5e1" opacity="0.4"/>
+            
+            <!-- Left Character (standing, arm high) -->
+            <!-- Torso / legs -->
+            <rect x="135" y="180" width="16" height="70" rx="3" fill="#0ea5e9"/>
+            <line x1="138" y1="250" x2="138" y2="280" stroke="#1e293b" stroke-width="6" stroke-linecap="round"/>
+            <line x1="148" y1="250" x2="148" y2="280" stroke="#1e293b" stroke-width="6" stroke-linecap="round"/>
+            <!-- Head -->
+            <circle cx="143" cy="155" r="10" fill="#fdb813"/>
+            <!-- Raised Arm -->
+            <line x1="148" y1="180" x2="185" y2="130" stroke="#fdb813" stroke-width="5" stroke-linecap="round"/>
+            
+            <!-- Right Character (standing, arm high) -->
+            <!-- Torso / legs -->
+            <rect x="245" y="170" width="18" height="80" rx="3" fill="#2563eb"/>
+            <line x1="248" y1="250" x2="248" y2="280" stroke="#1e293b" stroke-width="6" stroke-linecap="round"/>
+            <line x1="258" y1="250" x2="258" y2="280" stroke="#1e293b" stroke-width="6" stroke-linecap="round"/>
+            <!-- Head -->
+            <circle cx="254" cy="145" r="10" fill="#e0a96d"/>
+            <rect x="251" y="142" width="6" height="6" fill="#1e293b"/> <!-- glasses/hair -->
+            <!-- Raised Arm -->
+            <line x1="248" y1="175" x2="185" y2="130" stroke="#e0a96d" stroke-width="5" stroke-linecap="round"/>
+            
+            <!-- Dollar Floating Symbols -->
+            <text x="120" y="130" fill="#eab308" font-size="24" font-weight="bold">$</text>
+            <text x="270" y="110" fill="#eab308" font-size="24" font-weight="bold">$</text>
+        </svg>
+    </div>
+</div>
+
+<!-- Reusable Transfers Summary Table under the cards selection for list views -->
+<div class="mt-5 text-start">
+    <h3 class="fw-bold mb-4" style="font-family: 'Outfit', sans-serif;">Transfer History</h3>
+    <div class="card border-0 shadow-sm rounded-3 bg-white">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                    <thead class="table-light text-secondary small fw-bold">
+                        <tr>
+                            <th class="ps-4 py-3">TRANSFER NUMBER</th>
+                            <th class="py-3">FROM ACCOUNT</th>
+                            <th class="py-3">TO ACCOUNT</th>
+                            <th class="py-3">DATE</th>
+                            <th class="py-3">AMOUNT</th>
+                            <th class="py-3">PAYMENT METHOD</th>
+                            <th class="py-3">REFERENCE</th>
+                            <th class="pe-4 py-3 text-end">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transfer in page_obj %}
+                            <tr>
+                                <td class="ps-4 fw-semibold text-dark">{{ transfer.transfer_number }}</td>
+                                <td>{{ transfer.from_account.name }} ({{ transfer.from_account.number }})</td>
+                                <td>{{ transfer.to_account.name }} ({{ transfer.to_account.number }})</td>
+                                <td>{{ transfer.date|date:"d M Y" }}</td>
+                                <td class="fw-bold text-dark">₹{{ transfer.amount }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ transfer.payment_method }}</span></td>
+                                <td>{{ transfer.reference|default:"N/A" }}</td>
+                                <td class="pe-4 text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="{% url 'view_transfer' transfer.id %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-eye"></i></a>
+                                        <a href="{% url 'edit_transfer' transfer.id %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="triggerDeleteModal('{{ transfer.id }}', '{{ transfer.transfer_number }}')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center py-5 text-secondary">
+                                    <i class="bi bi-arrow-left-right fs-1 d-block mb-3 text-muted"></i>
+                                    <h5>No transfers found</h5>
+                                    <p class="small text-muted mb-0">Record or import transfers to move money between accounts.</p>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <nav class="d-flex justify-content-between align-items-center mt-4">
+            <span class="text-secondary small">Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            <ul class="pagination pagination-sm mb-0">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?q={{ query }}&sort={{ sort_by }}&page={{ page_obj.previous_page_number }}">Previous</a></li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?q={{ query }}&sort={{ sort_by }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?q={{ query }}&sort={{ sort_by }}&page={{ page_obj.next_page_number }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+
+<!-- ==============================================
+     DELETE CONFIRMATION MODAL
+     ============================================== -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-3">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger" id="deleteConfirmationModalLabel">Delete Transfer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4 text-start">
+                <p>Are you sure you want to delete transfer record <strong id="delete-transfer-num"></strong>?</p>
+                <p class="text-secondary small mb-0">This transaction record will be removed permanently.</p>
+            </div>
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-link text-secondary text-decoration-none fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="delete-confirm-btn" class="btn btn-danger fw-semibold px-4">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/transfer.js' %}"></script>
+{% endblock %}

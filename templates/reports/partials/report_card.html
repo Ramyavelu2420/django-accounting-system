@@ -1,0 +1,34 @@
+<div class="report-row-card">
+    <div class="report-row-left">
+        <div class="report-icon-box">
+            <i class="bi {{ report.icon }}"></i>
+        </div>
+        <div class="report-info-box">
+            <span class="report-title-text">{{ report.name }}</span>
+            <p class="report-desc-text text-secondary">{{ report.description }}</p>
+        </div>
+    </div>
+    
+    <div class="report-actions-box">
+        <!-- Pin Button -->
+        <span class="pin-btn-icon {% if report.id in user_pinned_ids %}active{% endif %}" onclick="togglePinReport('{{ report.id }}', this)">
+            <i class="bi {% if report.id in user_pinned_ids %}bi-pin-fill{% else %}bi-pin{% endif %}"></i>
+        </span>
+
+        <!-- Three dot action menu -->
+        <div class="dropdown">
+            <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots-vertical fs-5"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
+                <li><a class="dropdown-menu-item dropdown-item small" href="{% url 'edit_report' report.id %}">Open</a></li>
+                <li><a class="dropdown-menu-item dropdown-item small" href="#">Generate</a></li>
+                <li><a class="dropdown-menu-item dropdown-item small" href="#">Duplicate</a></li>
+                {% if not report.is_system %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-menu-item dropdown-item text-danger small" href="{% url 'delete_report' report.id %}">Delete</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>

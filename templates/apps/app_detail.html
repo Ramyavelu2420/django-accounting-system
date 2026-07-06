@@ -1,0 +1,62 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}{{ app.name }} Details - Akaunting{% endblock %}
+
+{% block content %}
+<div class="py-4 text-start">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'apps_marketplace' %}" class="text-decoration-none">Apps</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ app.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- App Detail Card -->
+    <div class="card border-0 shadow-sm rounded-3 p-4 bg-white mb-4">
+        <div class="d-flex align-items-center gap-4">
+            <div class="rounded-3 d-flex align-items-center justify-content-center text-white" style="width: 80px; height: 80px; font-size: 2.5rem; background-color: {{ app.banner_color }};">
+                <i class="bi {{ app.logo }}"></i>
+            </div>
+            <div class="flex-grow-1">
+                <h3 class="fw-bold mb-1 text-dark" style="font-family: 'Outfit', sans-serif;">{{ app.name }}</h3>
+                <p class="text-secondary small mb-0">Developed by <strong>{{ app.developer }}</strong> | Version {{ app.version }} | Category: {{ app.category }}</p>
+            </div>
+            <div>
+                {% if installed %}
+                    <a href="{% url 'open_app' app.id %}" class="btn btn-primary px-4 fw-semibold">Open</a>
+                {% else %}
+                    <a href="{% url 'install_app' app.id %}" class="btn btn-success px-4 fw-semibold" style="background-color: var(--success-color);">Install</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Description & Specifications -->
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-3 p-4 bg-white h-100">
+                <h5 class="fw-bold mb-3 text-dark" style="font-family: 'Outfit', sans-serif;">Description</h5>
+                <p class="text-secondary">{{ app.description }}</p>
+                <p class="text-secondary">Extend your accounting workflow seamlessly using the modular architecture built natively into Akaunting system nodes.</p>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-3 p-4 bg-white h-100">
+                <h5 class="fw-bold mb-3 text-dark" style="font-family: 'Outfit', sans-serif;">Information</h5>
+                <ul class="list-unstyled small text-secondary">
+                    <li class="mb-2"><strong>Price:</strong> {% if app.is_paid %}${{ app.price }}{% else %}Free{% endif %}</li>
+                    <li class="mb-2"><strong>Developer:</strong> {{ app.developer }}</li>
+                    <li class="mb-2"><strong>Last Updated:</strong> {{ app.updated_at|date:"d M Y" }}</li>
+                    <li class="mb-2"><strong>Status:</strong> {{ app.status }}</li>
+                    {% if app.website %}
+                        <li class="mb-2"><strong>Website:</strong> <a href="{{ app.website }}" target="_blank" class="text-decoration-none">{{ app.website }}</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

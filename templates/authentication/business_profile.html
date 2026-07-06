@@ -1,0 +1,99 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Business Profile - Onboarding Wizard{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/auth.css' %}" rel="stylesheet">
+<link href="{% static 'css/onboarding.css' %}" rel="stylesheet">
+<style>
+    body {
+        background-color: #eef0f3;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem 1rem;
+    }
+    /* Style active wizard state for step 2 */
+    .wizard-step-item.completed {
+        color: var(--primary-color);
+    }
+    .wizard-step-item.completed::after {
+        content: '';
+        position: absolute;
+        bottom: -18px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background-color: var(--primary-color);
+        border-radius: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="onboarding-wizard-container">
+    <!-- Steps Indicator -->
+    <div class="wizard-steps">
+        <div class="wizard-step-item completed">Company</div>
+        <div class="wizard-step-item active">Profile</div>
+        <div class="wizard-step-item text-muted">Ready</div>
+    </div>
+    
+    <!-- Form -->
+    <form method="POST" novalidate>
+        {% csrf_token %}
+        <div class="row g-4 mb-5">
+            <!-- Business Type -->
+            <div class="col-md-6 text-start">
+                <label class="form-label fw-semibold small text-secondary mb-1">What does your company do?</label>
+                {{ form.business_type }}
+                {{ form.business_type.errors }}
+            </div>
+            
+            <!-- Company Role -->
+            <div class="col-md-6 text-start">
+                <label class="form-label fw-semibold small text-secondary mb-1">What is your role at the company?</label>
+                {{ form.company_role }}
+                {{ form.company_role.errors }}
+            </div>
+            
+            <!-- Business Experience -->
+            <div class="col-md-6 text-start">
+                <label class="form-label fw-semibold small text-secondary mb-1">How long have you been in the business?</label>
+                {{ form.business_experience }}
+                {{ form.business_experience.errors }}
+            </div>
+            
+            <!-- Team Size -->
+            <div class="col-md-6 text-start">
+                <label class="form-label fw-semibold small text-secondary mb-1">How many team members do you have?</label>
+                {{ form.team_size }}
+                {{ form.team_size.errors }}
+            </div>
+            
+            <!-- Billing Method -->
+            <div class="col-md-6 text-start">
+                <label class="form-label fw-semibold small text-secondary mb-1">What do you use to bill your customers?</label>
+                {{ form.billing_method }}
+                {{ form.billing_method.errors }}
+            </div>
+            
+            <!-- Purpose -->
+            <div class="col-md-6 text-start">
+                <label class="form-label fw-semibold small text-secondary mb-1">What would you like to do in Akaunting?</label>
+                {{ form.purpose }}
+                {{ form.purpose.errors }}
+            </div>
+        </div>
+        
+        <!-- Bottom Actions -->
+        <div class="d-flex justify-content-between align-items-center border-top pt-4">
+            <button type="submit" name="previous" value="true" class="btn btn-link text-secondary text-decoration-none fw-semibold">Previous</button>
+            <button type="submit" class="btn btn-success-custom px-5 fw-semibold" style="background-color: var(--success-color);">Save</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

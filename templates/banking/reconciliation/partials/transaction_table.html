@@ -1,0 +1,18 @@
+{% for tra in transactions %}
+    <tr>
+        <td class="ps-4">{{ tra.date|date:"d M Y" }}</td>
+        <td>{{ tra.description }}</td>
+        <td>{{ tra.contact }}</td>
+        <td class="text-success fw-bold">{% if tra.deposit %}₹{{ tra.deposit }}{% else %}-{% endif %}</td>
+        <td class="text-danger fw-bold">{% if tra.withdrawal %}₹{{ tra.withdrawal }}{% else %}-{% endif %}</td>
+        <td>
+            <input type="checkbox" name="cleared_transactions" value="{{ tra.id }}" class="form-check-input">
+        </td>
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="6" class="text-center py-4 text-secondary">
+            No records.
+        </td>
+    </tr>
+{% endfor %}

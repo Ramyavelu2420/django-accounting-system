@@ -1,0 +1,351 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}{% if invoice %}Edit Invoice{% else %}New Invoice{% endif %} - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/invoice.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="py-4 text-start">
+    <!-- Header -->
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <h2 class="fw-bold mb-0 text-dark" style="font-family: 'Outfit', sans-serif;">
+            {% if invoice %}Edit Invoice{% else %}New Invoice{% endif %}
+        </h2>
+        <i class="bi bi-star text-secondary fs-4"></i>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" novalidate id="invoice-main-form" class="needs-validation">
+        {% csrf_token %}
+        <input type="hidden" name="items_data" id="items-data-input">
+
+        <!-- Hidden totals fields to POST to view -->
+        <input type="hidden" name="subtotal" id="hidden-subtotal" value="{{ invoice.subtotal|default:'0.00' }}">
+        <input type="hidden" name="discount" id="hidden-discount" value="{{ invoice.discount|default:'0.00' }}">
+        <input type="hidden" name="tax_amount" id="hidden-tax" value="{{ invoice.tax_amount|default:'0.00' }}">
+        <input type="hidden" name="total" id="hidden-total" value="{{ invoice.total|default:'0.00' }}">
+
+        <!-- Company Card Section -->
+        <div class="section-card">
+            <h5 class="fw-bold text-dark mb-1">Company</h5>
+            <p class="text-secondary small mb-4">Change the address, logo, and other information for your company.</p>
+
+            <div class="row g-4 align-items-start">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">Title</label>
+                        <input type="text" name="title" class="form-control" value="Invoice">
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold small text-secondary">Subheading</label>
+                        <input type="text" name="subheading" class="form-control" placeholder="Enter Subheading">
+                    </div>
+                </div>
+
+                <!-- Logo Upload -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small text-secondary">Logo</label>
+                    <div class="logo-upload-box" onclick="document.getElementById('logo-file-input').click()">
+                        <input type="file" name="logo_file" id="logo-file-input" class="d-none" accept="image/*">
+                        <i class="bi bi-cloud-arrow-up fs-2 d-block mb-1 text-muted"></i>
+                        <span class="small" id="logo-drop-text">Drop files here to upload</span>
+                    </div>
+                </div>
+
+                <!-- Company Details (ReadOnly) -->
+                <div class="col-md-4 text-start">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold text-dark mb-0">{{ company.name|default:"Pinesphere" }}</h6>
+                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle"><i class="bi bi-pencil"></i></button>
+                    </div>
+                    <p class="text-muted small mb-0">India</p>
+                    <p class="text-muted small">{{ request.user.email }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Section -->
+        <div class="section-card">
+            <h5 class="fw-bold text-dark mb-1">Billing</h5>
+            <p class="text-secondary small mb-4">Billing details appear in your invoice. Invoice Date is used in the dashboard and reports. Select the date you expect to get paid as the Due Date.</p>
+
+            <div class="row g-4">
+                <!-- Customer Selection Card -->
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold small text-secondary">Customer <span class="text-danger">*</span></label>
+                    
+                    <!-- If no customer exists or we click 'Add Customer' -->
+                    <div id="customer-placeholder-box" class="customer-dashed-selector {% if form.customer.value %}d-none{% endif %}">
+                        <i class="bi bi-person-plus fs-2 mb-2 d-block"></i>
+                        <span class="fw-semibold small">Add a Customer</span>
+                    </div>
+
+                    <!-- Actual Select Field (Hidden if placeholder is active, or we show it once selected) -->
+                    <div id="customer-form-section" class="{% if not form.customer.value %}d-none{% endif %}">
+                        <div class="d-flex gap-2 align-items-center">
+                            {{ form.customer }}
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                        {% if form.customer.errors %}
+                            <div class="invalid-feedback text-danger d-block">{{ form.customer.errors.as_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Invoice Dates, Number & Orders -->
+                <div class="col-md-7">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Invoice Date <span class="text-danger">*</span></label>
+                            {{ form.invoice_date }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Invoice Number <span class="text-danger">*</span></label>
+                            {{ form.invoice_number }}
+                            {% if form.invoice_number.errors %}
+                                <div class="invalid-feedback text-danger d-block">{{ form.invoice_number.errors.as_text }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Due Date <span class="text-danger">*</span></label>
+                            {{ form.due_date }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Order Number</label>
+                            {{ form.order_number }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Table Card Section -->
+        <div class="section-card">
+            <h5 class="fw-bold text-dark mb-4">Items</h5>
+            
+            <div class="table-responsive">
+                <table class="table align-middle items-table" style="font-size: 0.9rem;">
+                    <thead>
+                        <tr>
+                            <th style="min-width: 250px;">Item</th>
+                            <th>Description</th>
+                            <th style="width: 100px;">Quantity</th>
+                            <th style="width: 140px;">Price</th>
+                            <th class="text-end" style="width: 120px;">Amount</th>
+                            <th style="width: 60px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoice-items-body">
+                        {% if invoice %}
+                            {% for item in invoice.items.all %}
+                                <tr>
+                                    <td>
+                                        <select class="form-select row-item-select mb-2">
+                                            <option value="">-- Select Item --</option>
+                                            {% for available_item in items %}
+                                                <option value="{{ available_item.id }}" 
+                                                        data-name="{{ available_item.name }}" 
+                                                        data-desc="{{ available_item.description }}" 
+                                                        data-price="{{ available_item.sale_price }}"
+                                                        {% if item.item == available_item %}selected{% endif %}>
+                                                    {{ available_item.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <input type="text" class="form-control row-item-name" value="{{ item.name }}" placeholder="Item Name" required>
+                                    </td>
+                                    <td>
+                                        <textarea class="form-control row-item-desc" rows="1" placeholder="Description">{{ item.description }}</textarea>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control row-item-qty" value="{{ item.quantity }}" min="1" step="1">
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control row-item-price" value="{{ item.price }}" min="0" step="0.01">
+                                    </td>
+                                    <td class="text-end fw-semibold row-item-amount">₹{{ item.amount }}</td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-outline-danger btn-sm btn-delete-row"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Single blank row to start with -->
+                            <tr>
+                                <td>
+                                    <select class="form-select row-item-select mb-2">
+                                        <option value="">-- Select Item --</option>
+                                        {% for available_item in items %}
+                                            <option value="{{ available_item.id }}" data-name="{{ available_item.name }}" data-desc="{{ available_item.description }}" data-price="{{ available_item.sale_price }}">{{ available_item.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="text" class="form-control row-item-name" placeholder="Item Name" required>
+                                </td>
+                                <td>
+                                    <textarea class="form-control row-item-desc" rows="1" placeholder="Description"></textarea>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control row-item-qty" value="1" min="1" step="1">
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control row-item-price" value="0.00" min="0" step="0.01">
+                                </td>
+                                <td class="text-end fw-semibold row-item-amount">₹0.00</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-outline-danger btn-sm btn-delete-row"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add Row Button -->
+            <button type="button" class="btn btn-link text-primary text-decoration-none fw-bold px-0 mt-2" id="btn-add-item-row">
+                <i class="bi bi-plus-lg"></i> Add an Item
+            </button>
+        </div>
+
+        <!-- Summary & Totals Cards Section -->
+        <div class="row align-items-start g-4">
+            <!-- Left Area: Notes -->
+            <div class="col-md-6 text-start">
+                <div class="section-card">
+                    <h6 class="fw-bold text-dark mb-2">Notes</h6>
+                    {{ form.notes }}
+                </div>
+            </div>
+
+            <!-- Right Area: Summary -->
+            <div class="col-md-6">
+                <div class="section-card p-4">
+                    <!-- Subtotal -->
+                    <div class="d-flex justify-content-between align-items-center totals-row border-bottom pb-2">
+                        <span class="text-secondary fw-semibold">Subtotal</span>
+                        <span class="fw-bold text-dark" id="subtotal-val">₹0.00</span>
+                    </div>
+
+                    <!-- Discount Percentage Input -->
+                    <div class="d-flex justify-content-between align-items-center totals-row border-bottom py-2">
+                        <span class="text-secondary fw-semibold">Discount (%)</span>
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="number" id="discount-input" class="form-control text-end py-1" value="{{ invoice.discount|default:0 }}" min="0" max="100" style="width: 80px;">
+                            <span class="fw-bold text-dark" id="discount-val">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Tax Percentage Input -->
+                    <div class="d-flex justify-content-between align-items-center totals-row border-bottom py-2">
+                        <span class="text-secondary fw-semibold">Tax (%)</span>
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="number" id="tax-input" class="form-control text-end py-1" value="0" min="0" max="100" style="width: 80px;">
+                            <span class="fw-bold text-dark" id="tax-val">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Currency & Total -->
+                    <div class="d-flex justify-content-between align-items-center totals-row pt-3">
+                        <span class="text-secondary fw-bold">Total</span>
+                        <div class="d-flex align-items-center gap-2">
+                            {{ form.currency }}
+                            <span class="fs-4 fw-bold text-dark" id="total-val">₹0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Section Card -->
+        <div class="section-card">
+            <div class="advanced-accordion-header" data-bs-toggle="collapse" data-bs-target="#advanced-collapse" aria-expanded="false">
+                <div>
+                    <h5 class="fw-bold text-dark mb-1">Advanced</h5>
+                    <p class="text-secondary small mb-0">Select the category, add or edit the footer, and add attachments to your invoice.</p>
+                </div>
+                <i class="bi bi-chevron-down arrow-icon"></i>
+            </div>
+            
+            <div class="collapse mt-4" id="advanced-collapse">
+                <div class="row g-4">
+                    <!-- Category Selection -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Category</label>
+                        {{ form.category }}
+                    </div>
+
+                    <!-- Attachment Upload -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Attachments</label>
+                        <input type="file" name="attachment_files" class="form-control" multiple>
+                        <p class="text-muted small mt-1">Upload multiple receipt scans or relevant files</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Action Footer Buttons -->
+        <div class="d-flex justify-content-end align-items-center gap-3 border-top pt-4 mb-5">
+            <a href="{% url 'invoices_list' %}" class="btn btn-link text-secondary text-decoration-none fw-semibold">Cancel</a>
+            <button type="submit" class="btn btn-success px-5 fw-semibold" style="background-color: var(--success-color);">Save</button>
+            <button type="button" class="btn btn-light px-4 fw-semibold border text-muted" disabled>Send To</button>
+        </div>
+    </form>
+</div>
+
+<!-- ==============================================
+     ADD CUSTOMER MODAL POPUP (AJAX)
+     ============================================== -->
+<div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-3">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark" id="addCustomerModalLabel">Add Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="ajax-customer-form">
+                {% csrf_token %}
+                <div class="modal-body py-4 text-start">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">Name *</label>
+                        {{ customer_form.name }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">Email</label>
+                        {{ customer_form.email }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">Phone</label>
+                        {{ customer_form.phone }}
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold small text-secondary">Address</label>
+                        {{ customer_form.address }}
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-link text-secondary text-decoration-none fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success fw-semibold" style="background-color: var(--success-color);">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Injects available items options for dynamic javascript rows instantiation
+    window.customerCreateUrl = "{% url 'ajax_customer_create' %}";
+    window.availableItemsList = `
+        {% for available_item in items %}
+            <option value="{{ available_item.id }}" data-name="{{ available_item.name }}" data-desc="{{ available_item.description }}" data-price="{{ available_item.sale_price }}">{{ available_item.name }}</option>
+        {% endfor %}
+    `;
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/invoice.js' %}"></script>
+{% endblock %}

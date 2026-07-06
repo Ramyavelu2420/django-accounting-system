@@ -1,0 +1,99 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Items - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/items.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row align-items-center g-5 py-4">
+    <!-- Left Section: Cards -->
+    <div class="col-lg-6 text-start">
+        <h2 class="fw-bold text-dark mb-2" style="font-family: 'Outfit', sans-serif;">Items</h2>
+        <p class="text-secondary small mb-5" style="max-width: 500px;">Items can be products or services. You can use items when creating invoices and bills to have the price, tax etc fields populated.</p>
+        
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Navigation Cards -->
+        <div class="w-100" style="max-width: 540px;">
+            <!-- New Item Card -->
+            <a href="{% url 'item_create' %}" class="item-card">
+                <div class="item-card-left">
+                    <span class="item-card-title">New Item <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0;"></span></span>
+                    <span class="item-card-desc">Enter the details and create your first item</span>
+                </div>
+                <i class="bi bi-chevron-right item-card-chevron"></i>
+            </a>
+            
+            <!-- Import Items Card -->
+            <a href="{% url 'item_import' %}" class="item-card">
+                <div class="item-card-left">
+                    <span class="item-card-title">Import Items</span>
+                    <span class="item-card-desc">Import your existing items with a single click</span>
+                </div>
+                <i class="bi bi-chevron-right item-card-chevron"></i>
+            </a>
+            
+            <!-- Import Pro Card -->
+            <a href="#" class="item-card">
+                <div class="item-card-left">
+                    <span class="item-card-title">Import Pro items <span class="badge bg-light text-success border px-2 py-0.5 small fw-semibold rounded-pill">Beta</span></span>
+                    <span class="item-card-desc">Import data using saved templates for quick processing</span>
+                </div>
+                <i class="bi bi-chevron-right item-card-chevron"></i>
+            </a>
+            
+            <!-- Inventory Card -->
+            <a href="{% url 'inventory' %}" class="item-card">
+                <div class="item-card-left">
+                    <span class="item-card-title">Inventory</span>
+                    <span class="item-card-desc">Manage your stock, variants, transfer orders, adjustments, warehouses</span>
+                </div>
+                <i class="bi bi-chevron-right item-card-chevron"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Right Section: Shopping SVG Illustration -->
+    <div class="col-lg-6 d-flex justify-content-center align-items-center">
+        <!-- SVG Graphic simulating Screenshot-1 girl exiting mobile screen with cart -->
+        <svg class="img-fluid" width="400" height="320" viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Mobile device frame -->
+            <rect x="180" y="40" width="120" height="240" rx="20" fill="#fbcfe8" stroke="#f472b6" stroke-width="6"/>
+            <rect x="195" y="55" width="90" height="210" rx="10" fill="#fdf2f8"/>
+            <rect x="230" y="46" width="20" height="4" rx="2" fill="#f472b6"/>
+            
+            <!-- Shopping Cart -->
+            <rect x="70" y="190" width="60" height="40" rx="4" fill="none" stroke="#64748b" stroke-width="4"/>
+            <line x1="60" y1="180" x2="70" y2="230" stroke="#64748b" stroke-width="4"/>
+            <line x1="50" y1="180" x2="70" y2="180" stroke="#64748b" stroke-width="4"/>
+            <!-- Wheels -->
+            <circle cx="80" cy="245" r="10" fill="#475569"/>
+            <circle cx="120" cy="245" r="10" fill="#475569"/>
+            
+            <!-- Girl character -->
+            <!-- Torso -->
+            <path d="M140 180 L170 180 L165 240 L145 240 Z" fill="#2563eb"/>
+            <!-- Head -->
+            <circle cx="155" cy="155" r="12" fill="#fdba74"/>
+            <path d="M140 148 C145 135, 165 135, 170 148 Z" fill="#1e293b"/>
+            <!-- Arms pushing cart -->
+            <line x1="140" y1="190" x2="110" y2="190" stroke="#fdba74" stroke-width="5"/>
+            <!-- Legs walking -->
+            <line x1="148" y1="240" x2="140" y2="280" stroke="#1e293b" stroke-width="6"/>
+            <line x1="160" y1="240" x2="170" y2="280" stroke="#1e293b" stroke-width="6"/>
+        </svg>
+    </div>
+</div>
+{% endblock %}

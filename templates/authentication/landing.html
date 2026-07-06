@@ -1,0 +1,71 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Get Started - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/auth.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="split-container">
+    <!-- Left Hero -->
+    <div class="split-left-hero">
+        <div class="mb-4">
+            <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="40" stroke="#ffffff" stroke-width="12" stroke-dasharray="180 60"/>
+                <circle cx="50" cy="50" r="20" fill="#ffffff"/>
+            </svg>
+        </div>
+        <h1 class="display-4 fw-extrabold mb-3">Easy Accounting for Small Businesses</h1>
+        <p class="fs-5 opacity-90 text-light mb-0">From invoicing to expense tracking, Akaunting has everything you need to manage your business finance online.</p>
+    </div>
+    
+    <!-- Right Content -->
+    <div class="split-right-content">
+        <div class="w-100" style="max-width: 500px;">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-dark">Get Started</h2>
+                <p class="text-muted">Choose your preferred deployment method</p>
+            </div>
+            
+            <div class="row g-4">
+                <!-- Cloud Card -->
+                <div class="col-12">
+                    <div class="landing-card position-relative border-primary-subtle" style="border-width: 2px;">
+                        <span class="position-absolute top-0 end-0 translate-middle-y badge rounded-pill bg-primary px-3 py-2 fw-semibold me-4">RECOMMENDED</span>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3 text-primary">
+                                <i class="bi bi-cloud-check fs-2"></i>
+                            </div>
+                            <div>
+                                <h4 class="fw-bold mb-1">Cloud</h4>
+                                <p class="text-muted small mb-0">Start instantly, no setup required</p>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-4">Enjoy automatic backups, instant updates, and premium support. Host your financials securely in our cloud environment.</p>
+                        <a href="{% url 'register' %}" class="btn w-100 btn-primary-custom py-2 fw-semibold">Start Free Trial</a>
+                    </div>
+                </div>
+                
+                <!-- On-Premise Card -->
+                <div class="col-12">
+                    <div class="landing-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-success bg-opacity-10 p-3 rounded-3 me-3 text-success">
+                                <i class="bi bi-hdd-network fs-2"></i>
+                            </div>
+                            <div>
+                                <h4 class="fw-bold mb-1">On-Premise</h4>
+                                <p class="text-muted small mb-0">Self-host on your own servers</p>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-4">Complete control over your data. Download the open-source community edition and host it on your local infrastructure.</p>
+                        <a href="#" class="btn w-100 btn-outline-secondary py-2 fw-semibold">Download Community Edition</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

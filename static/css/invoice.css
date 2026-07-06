@@ -1,0 +1,126 @@
+/* Invoice module styles */
+
+/* Grid Cards for Landing */
+.invoice-card {
+    background-color: #ffffff;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: inherit;
+    margin-bottom: 1rem;
+}
+.invoice-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(86, 88, 149, 0.08);
+    border-color: rgba(86, 88, 149, 0.15);
+}
+
+/* Company & Billing Headers */
+.section-card {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Item lines table */
+.items-table th {
+    font-weight: 700;
+    color: #64748b;
+    border-bottom: 2px solid #e2e8f0;
+}
+.items-table td {
+    vertical-align: middle;
+}
+
+/* Rounded inputs matching Screenshot 2/3 */
+.form-control, .form-select {
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+}
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 3px rgba(86, 88, 149, 0.15);
+    border-color: #565895;
+}
+
+/* Add Customer dashed selector area */
+.customer-dashed-selector {
+    border: 2px dashed #cbd5e1;
+    border-radius: 0.75rem;
+    background-color: #f8fafc;
+    padding: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #64748b;
+}
+.customer-dashed-selector:hover {
+    border-color: #565895;
+    background-color: rgba(86, 88, 149, 0.03);
+    color: #565895;
+}
+
+/* Logo Upload Container */
+.logo-upload-box {
+    border: 2px dashed #cbd5e1;
+    border-radius: 0.5rem;
+    background-color: #f8fafc;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    text-align: center;
+    color: #94a3b8;
+    padding: 1rem;
+}
+
+/* Advanced collapse headers */
+.advanced-accordion-header {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    font-weight: 700;
+    color: #1f2937;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Subtotal / totals block styling */
+.totals-row {
+    font-size: 0.95rem;
+    color: #4b5563;
+    padding: 0.5rem 0;
+}
+
+/* Dropzone for Excel imports */
+.import-drop-zone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 0.75rem;
+    background-color: #f8fafc;
+    padding: 3.5rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.import-drop-zone:hover, .import-drop-zone.dragover {
+    border-color: var(--primary-color);
+    background-color: rgba(86, 88, 149, 0.03);
+}

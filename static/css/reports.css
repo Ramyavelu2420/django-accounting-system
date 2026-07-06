@@ -1,0 +1,133 @@
+/* Reports module styles */
+
+/* Pinned placeholder box */
+.pinned-placeholder {
+    border: 2px dashed #e2e8f0;
+    background-color: #f8fafc;
+    border-radius: 0.75rem;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    height: 110px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.pinned-placeholder:hover {
+    border-color: #cbd5e1;
+    background-color: #f1f5f9;
+    color: #64748b;
+}
+.pinned-placeholder i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Pinned active card style */
+.pinned-active-card {
+    border: 1px solid rgba(86, 88, 149, 0.15);
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.pinned-active-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Category header */
+.reports-category-header {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 0.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Report row card layout */
+.report-row-card {
+    background-color: #ffffff;
+    border: 1px solid rgba(0,0,0,0.04);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+    margin-bottom: 1rem;
+}
+.report-row-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px rgba(86, 88, 149, 0.06);
+    border-color: rgba(86, 88, 149, 0.12);
+}
+
+.report-row-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    text-align: left;
+}
+
+.report-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.5rem;
+    background-color: rgba(86, 88, 149, 0.08);
+    color: #565895;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.report-info-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.report-title-text {
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.15rem;
+    font-size: 0.95rem;
+}
+
+.report-desc-text {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-bottom: 0;
+}
+
+.report-actions-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pin-btn-icon {
+    font-size: 1.15rem;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+.pin-btn-icon:hover, .pin-btn-icon.active {
+    color: #eab308;
+}

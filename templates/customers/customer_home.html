@@ -1,0 +1,95 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Customers - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/customer.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row align-items-center g-5 py-4">
+    <!-- Left Section: Navigation Cards -->
+    <div class="col-lg-6 text-start">
+        <h2 class="fw-bold text-dark mb-2" style="font-family: 'Outfit', sans-serif;">Customers</h2>
+        <p class="text-secondary small mb-5" style="max-width: 500px;">Customers are required if you want to create invoices. They may also log in to Client Portal and see their balance.</p>
+        
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Navigation Cards -->
+        <div class="w-100" style="max-width: 540px;">
+            <!-- New Customer -->
+            <a href="{% url 'customer_create' %}" class="customer-card">
+                <div class="customer-card-left">
+                    <span class="customer-card-title">New Customer <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
+                    <span class="customer-card-desc">Enter the details and create your first customer</span>
+                </div>
+                <i class="bi bi-chevron-right customer-card-chevron"></i>
+            </a>
+            
+            <!-- Import Customers -->
+            <a href="{% url 'customer_import' %}" class="customer-card">
+                <div class="customer-card-left">
+                    <span class="customer-card-title">Import Customers</span>
+                    <span class="customer-card-desc">Import your existing customers with a single click</span>
+                </div>
+                <i class="bi bi-chevron-right customer-card-chevron"></i>
+            </a>
+            
+            <!-- Import Pro Customers -->
+            <a href="#" class="customer-card">
+                <div class="customer-card-left">
+                    <span class="customer-card-title">Import Pro customers <span class="badge bg-light text-success border px-2 py-0.5 small fw-semibold rounded-pill">Beta</span></span>
+                    <span class="customer-card-desc">Import data using saved templates for quick processing</span>
+                </div>
+                <i class="bi bi-chevron-right customer-card-chevron"></i>
+            </a>
+            
+            <!-- CRM -->
+            <a href="#" class="customer-card">
+                <div class="customer-card-left">
+                    <span class="customer-card-title">CRM</span>
+                    <span class="customer-card-desc">Track every step of your customer journey and increase your revenue</span>
+                </div>
+                <i class="bi bi-chevron-right customer-card-chevron"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Right Section: unDraw Customers Vector SVG -->
+    <div class="col-lg-6 d-flex justify-content-center align-items-center">
+        <!-- SVG Graphic simulating Screenshot-1 customers relations/shopping vector -->
+        <svg class="img-fluid" width="400" height="320" viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Customer relations illustration -->
+            <circle cx="200" cy="150" r="80" fill="#f1f5f9"/>
+            
+            <!-- Shopping bags -->
+            <rect x="150" y="180" width="30" height="40" rx="3" fill="#fda4af"/>
+            <path d="M158 180 C158 170, 172 170, 172 180" stroke="#f43f5e" stroke-width="2"/>
+            <rect x="220" y="170" width="40" height="50" rx="3" fill="#93c5fd"/>
+            <path d="M230 170 C230 158, 250 158, 250 170" stroke="#2563eb" stroke-width="2"/>
+            
+            <!-- Happy Client character -->
+            <circle cx="200" cy="100" r="15" fill="#fbcfe8"/>
+            <path d="M190 92 C192 80, 208 80, 210 92 Z" fill="#1e293b"/>
+            <!-- Torso -->
+            <path d="M185 115 L215 115 L210 180 L190 180 Z" fill="#059669"/>
+            <!-- Arms raising bags -->
+            <line x1="185" y1="120" x2="165" y2="180" stroke="#fbcfe8" stroke-width="4"/>
+            <line x1="215" y1="120" x2="240" y2="170" stroke="#fbcfe8" stroke-width="4"/>
+            <!-- Legs walking/jumping -->
+            <line x1="193" y1="180" x2="180" y2="240" stroke="#1e293b" stroke-width="5"/>
+            <line x1="207" y1="180" x2="220" y2="230" stroke="#1e293b" stroke-width="5"/>
+        </svg>
+    </div>
+</div>
+{% endblock %}

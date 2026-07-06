@@ -1,0 +1,167 @@
+/* Custom styles for Django Auth Pages */
+
+.split-container {
+    min-height: 100vh;
+    display: flex;
+}
+
+.split-left-hero {
+    flex: 1.1;
+    background: linear-gradient(135deg, rgba(86, 88, 149, 0.9) 0%, rgba(112, 159, 84, 0.85) 100%), 
+                url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1200&auto=format&fit=crop') no-repeat center center;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10% 7%;
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.split-right-content {
+    flex: 0.9;
+    background-color: #fbfbfd;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem 2rem;
+}
+
+.auth-card {
+    background-color: #ffffff;
+    border: none;
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 8px rgba(0, 0, 0, 0.02);
+    width: 100%;
+    max-width: 480px;
+    padding: 2.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06), 0 3px 10px rgba(0, 0, 0, 0.03);
+}
+
+/* Landing specific cards */
+.landing-card {
+    background-color: #ffffff;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 1.25rem;
+    padding: 2rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.03);
+    transition: all 0.3s ease;
+}
+.landing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(86, 88, 149, 0.12);
+    border-color: rgba(86, 88, 149, 0.2);
+}
+
+.social-auth-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #4a5568;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.social-auth-btn:hover {
+    background-color: #f7fafc;
+    border-color: #cbd5e0;
+    color: #2d3748;
+}
+
+.or-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #a0aec0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin: 1.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.or-divider::before, .or-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+}
+.or-divider:not(:empty)::before {
+    margin-right: .75em;
+}
+.or-divider:not(:empty)::after {
+    margin-left: .75em;
+}
+
+/* Floating labels adjustments */
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    color: var(--primary-color);
+}
+.form-floating > .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(86, 88, 149, 0.15);
+}
+
+/* Buttons */
+.btn-primary-custom {
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+}
+.btn-primary-custom:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-success-custom {
+    background-color: var(--success-color);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+}
+.btn-success-custom:hover {
+    background-color: var(--success-hover);
+    transform: translateY(-1px);
+}
+
+/* Custom form errors and inputs */
+.errorlist {
+    list-style: none;
+    padding-left: 0;
+    color: #e53e3e;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+@media (max-width: 991.98px) {
+    .split-container {
+        flex-direction: column;
+    }
+    .split-left-hero {
+        padding: 5rem 2rem;
+        min-height: 40vh;
+    }
+    .split-right-content {
+        padding: 3rem 1.5rem;
+    }
+}

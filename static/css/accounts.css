@@ -1,0 +1,42 @@
+/* Accounts module styles */
+
+/* Switcher button styling for Radio Selects */
+.type-radio-group, .default-radio-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.type-radio-group input[type="radio"], .default-radio-group input[type="radio"] {
+    display: none;
+}
+
+.type-radio-group label, .default-radio-group label {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #475569;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+/* Active style for radio labels */
+.type-radio-group input[type="radio"]:checked + label {
+    background-color: #565895 !important;
+    color: #ffffff !important;
+    border-color: #565895 !important;
+}
+
+.default-radio-group input[type="radio"]:checked + label {
+    background-color: #dc2626 !important; /* Default Red for No or green for Yes */
+    color: #ffffff !important;
+    border-color: #dc2626 !important;
+}
+
+.default-radio-group .radio-yes input[type="radio"]:checked + label {
+    background-color: #059669 !important;
+    border-color: #059669 !important;
+}

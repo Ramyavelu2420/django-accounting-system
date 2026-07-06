@@ -1,0 +1,94 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Edit Report - Akaunting{% endblock %}
+
+{% block content %}
+<div class="py-4 text-start">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'reports_landing' %}" class="text-decoration-none">Reports</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit Report</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <h2 class="fw-bold mb-0 text-dark" style="font-family: 'Outfit', sans-serif;">Edit Report</h2>
+    </div>
+
+    <form method="POST" action="{% url 'update_report' report.id %}" novalidate class="needs-validation">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger small mb-4">
+                {{ form.non_field_errors.as_text }}
+            </div>
+        {% endif %}
+
+        <!-- General Section -->
+        <div class="card border-0 shadow-sm rounded-3 p-4 mb-4 bg-white">
+            <h5 class="fw-bold mb-4 text-dark" style="font-family: 'Outfit', sans-serif;">General</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small text-secondary">Name *</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <div class="invalid-feedback text-danger d-block">{{ form.name.errors.as_text }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small text-secondary">Type *</label>
+                    {{ form.report_type }}
+                    {% if form.report_type.errors %}
+                        <div class="invalid-feedback text-danger d-block">{{ form.report_type.errors.as_text }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold small text-secondary">Description *</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="invalid-feedback text-danger d-block">{{ form.description.errors.as_text }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Preferences Section -->
+        <div class="card border-0 shadow-sm rounded-3 p-4 mb-4 bg-white">
+            <h5 class="fw-bold mb-4 text-dark" style="font-family: 'Outfit', sans-serif;">Preferences</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small text-secondary">Group By *</label>
+                    {{ form.group_by }}
+                    {% if form.group_by.errors %}
+                        <div class="invalid-feedback text-danger d-block">{{ form.group_by.errors.as_text }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small text-secondary">Period *</label>
+                    {{ form.period }}
+                    {% if form.period.errors %}
+                        <div class="invalid-feedback text-danger d-block">{{ form.period.errors.as_text }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small text-secondary">Basis *</label>
+                    {{ form.basis }}
+                    {% if form.basis.errors %}
+                        <div class="invalid-feedback text-danger d-block">{{ form.basis.errors.as_text }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Action Buttons -->
+        <div class="d-flex justify-content-end align-items-center gap-3 border-top pt-4">
+            <a href="{% url 'reports_landing' %}" class="btn btn-link text-secondary text-decoration-none fw-semibold">Cancel</a>
+            <button type="submit" class="btn btn-success px-5 fw-semibold" style="background-color: var(--success-color);">Save</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

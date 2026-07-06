@@ -1,0 +1,366 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Akaunting{% endblock %}
+
+{% block content %}
+<div class="dashboard-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 text-start">
+    <div class="d-flex align-items-center gap-2">
+        <h2 class="fw-bold mb-0 text-dark" style="font-family: 'Outfit', sans-serif;">Dashboard</h2>
+        <!-- Dashboard Selector Dropdown -->
+        <div class="dropdown ms-2">
+            <button class="btn btn-light border dropdown-toggle fw-semibold small" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ active_db.name }}
+            </button>
+            <ul class="dropdown-menu shadow border rounded-3">
+                {% for db in dashboards %}
+                    <li><a class="dropdown-item small" href="{% url 'dashboard' %}?dashboard_id={{ db.id }}">{{ db.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <div class="d-flex flex-wrap align-items-center gap-3">
+        <a href="#" class="text-secondary text-decoration-none small fw-semibold"><i class="bi bi-plus-lg me-1"></i> Add Widget</a>
+        <a href="{% url 'new_dashboard' %}" class="text-secondary text-decoration-none small fw-semibold"><i class="bi bi-window me-1"></i> New Dashboard</a>
+        
+        <!-- Date Range Picker -->
+        <div class="date-picker-box d-flex align-items-center bg-white border rounded px-3 py-1.5 shadow-sm">
+            <i class="bi bi-calendar3 text-muted me-2"></i>
+            <input type="text" class="border-0 bg-transparent small fw-medium" value="2026-01-01" style="width: 90px; outline: none;" readonly>
+            <span class="text-muted mx-2">-</span>
+            <input type="text" class="border-0 bg-transparent small fw-medium" value="2026-12-31" style="width: 90px; outline: none;" readonly>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Widgets Grid -->
+<div class="row g-4 mb-4 text-start" id="dashboard-widgets-container">
+    {% for widget in widgets %}
+        <div class="widget-col col-12 {% if widget.width == 25 %}col-lg-3{% elif widget.width == 33 %}col-lg-4{% elif widget.width == 50 %}col-lg-6{% elif widget.width == 66 %}col-lg-8{% elif widget.width == 75 %}col-lg-9{% else %}col-lg-12{% endif %}" id="widget-container-{{ widget.id }}" data-id="{{ widget.id }}" data-sort="{{ widget.sort_order }}">
+            
+            {% if widget.widget_name == 'Receivables' %}
+                <!-- Receivables Card -->
+                <div class="widget-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h5 class="widget-title mb-0" id="widget-title-{{ widget.id }}">{{ widget.widget_name }}</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="#" class="widget-link small text-decoration-none">View Report</a>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
+                                    <li><a class="dropdown-menu-item dropdown-item small edit-widget-trigger" href="#" data-id="{{ widget.id }}">Edit Width</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="widget-subtitle mb-4">Amount that you're yet to receive from your customers</p>
+                    <h6 class="mb-3 text-secondary small">Total unpaid invoices: <strong class="text-dark">₹0.00</strong></h6>
+                    <div class="progress mb-4" style="height: 10px; background-color: #eef0f3; border-radius: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="d-flex gap-4">
+                        <div>
+                            <span class="d-block text-secondary small">Open</span>
+                            <span class="fw-bold fs-5 text-dark">₹0.00</span>
+                        </div>
+                        <div>
+                            <span class="d-block text-secondary small">Overdue</span>
+                            <span class="fw-bold fs-5 text-dark d-flex align-items-center gap-1">₹0.00 <i class="bi bi-caret-down-fill small text-muted" style="font-size: 0.6rem;"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+            {% elif widget.widget_name == 'Payables' %}
+                <!-- Payables Card -->
+                <div class="widget-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h5 class="widget-title mb-0" id="widget-title-{{ widget.id }}">{{ widget.widget_name }}</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="#" class="widget-link small text-decoration-none">View Report</a>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
+                                    <li><a class="dropdown-menu-item dropdown-item small edit-widget-trigger" href="#" data-id="{{ widget.id }}">Edit Width</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="widget-subtitle mb-4">Amount that you're yet to pay to your vendors</p>
+                    <h6 class="mb-3 text-secondary small">Total unpaid bills: <strong class="text-dark">₹0.00</strong></h6>
+                    <div class="progress mb-4" style="height: 10px; background-color: #eef0f3; border-radius: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="d-flex gap-4">
+                        <div>
+                            <span class="d-block text-secondary small">Open</span>
+                            <span class="fw-bold fs-5 text-dark">₹0.00</span>
+                        </div>
+                        <div>
+                            <span class="d-block text-secondary small">Overdue</span>
+                            <span class="fw-bold fs-5 text-dark d-flex align-items-center gap-1">₹0.00 <i class="bi bi-caret-down-fill small text-muted" style="font-size: 0.6rem;"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+            {% elif widget.widget_name == 'Cash Flow' %}
+                <!-- Cash Flow Card -->
+                <div class="widget-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h5 class="widget-title mb-0" id="widget-title-{{ widget.id }}">{{ widget.widget_name }}</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="#" class="widget-link small text-decoration-none">View Report</a>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
+                                    <li><a class="dropdown-menu-item dropdown-item small edit-widget-trigger" href="#" data-id="{{ widget.id }}">Edit Width</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="widget-subtitle mb-4">Cash coming in and going out of your business</p>
+                    <div class="row align-items-center">
+                        <div class="col-md-9 position-relative">
+                            <div id="cash-flow-chart" style="min-height: 250px;"></div>
+                        </div>
+                        <div class="col-md-3 border-start ps-md-4">
+                            <div class="d-flex flex-column gap-3">
+                                <div>
+                                    <span class="d-block text-secondary small">Incoming</span>
+                                    <h4 class="fw-bold text-success mb-0">₹0</h4>
+                                </div>
+                                <div class="border-top pt-2">
+                                    <span class="d-block text-secondary small">Outgoing</span>
+                                    <h4 class="fw-bold text-danger mb-0">₹0</h4>
+                                </div>
+                                <div class="border-top pt-2">
+                                    <span class="d-block text-secondary small">Net Profit</span>
+                                    <h4 class="fw-bold text-dark mb-0">₹0</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            {% elif widget.widget_name == 'Profit & Loss' %}
+                <!-- Profit & Loss Card -->
+                <div class="widget-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h5 class="widget-title mb-0" id="widget-title-{{ widget.id }}">{{ widget.widget_name }}</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="#" class="widget-link small text-decoration-none">View Report</a>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
+                                    <li><a class="dropdown-menu-item dropdown-item small edit-widget-trigger" href="#" data-id="{{ widget.id }}">Edit Width</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="widget-subtitle mb-4">Income and expenses including unpaid invoices and bills</p>
+                    <div id="profit-loss-chart" style="min-height: 250px;"></div>
+                </div>
+
+            {% elif widget.widget_name == 'Expenses By Category' %}
+                <!-- Expenses By Category Card -->
+                <div class="widget-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h5 class="widget-title mb-0" id="widget-title-{{ widget.id }}">{{ widget.widget_name }}</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="#" class="widget-link small text-decoration-none">View Report</a>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
+                                    <li><a class="dropdown-menu-item dropdown-item small edit-widget-trigger" href="#" data-id="{{ widget.id }}">Edit Width</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="widget-subtitle mb-4">Top expenses across various categories</p>
+                    <div id="expenses-category-chart" style="min-height: 250px;"></div>
+                </div>
+
+            {% elif widget.widget_name == 'Account Balance' %}
+                <!-- Account Balance Card -->
+                <div class="widget-card p-4 h-100 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h5 class="widget-title mb-0" id="widget-title-{{ widget.id }}">{{ widget.widget_name }}</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
+                                <li><a class="dropdown-menu-item dropdown-item small edit-widget-trigger" href="#" data-id="{{ widget.id }}">Edit Width</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="widget-subtitle mb-4">Current balance of your bank accounts</p>
+                    <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-3">
+                            <span class="fw-medium text-secondary">Cash</span>
+                            <strong class="text-dark fs-5">₹0.00</strong>
+                        </div>
+                    </div>
+                </div>
+
+            {% elif widget.widget_name == 'Connect Bank Accounts' %}
+                <!-- Connect Bank Accounts Card -->
+                <div class="widget-card p-4 h-100 overflow-hidden position-relative">
+                    <div class="d-flex justify-content-end position-absolute top-0 end-0 p-3" style="z-index: 10;">
+                        <div class="dropdown">
+                            <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
+                                <li><a class="dropdown-menu-item dropdown-item small edit-widget-trigger" href="#" data-id="{{ widget.id }}">Edit Width</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row h-100 align-items-center">
+                        <div class="col-md-7">
+                            <h5 class="widget-title mb-2" id="widget-title-{{ widget.id }}">{{ widget.widget_name }}</h5>
+                            <p class="text-secondary small mb-4">Import your transactions to Akaunting automatically by connecting your bank accounts</p>
+                            <a href="#" class="btn btn-outline-secondary px-4 fw-semibold small">Connect Accounts</a>
+                        </div>
+                        <div class="col-md-5 d-flex justify-content-center align-items-center">
+                            <svg class="illustration-img mt-3" width="160" height="140" viewBox="0 0 160 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="80" cy="50" r="15" fill="#fbcfe8"/>
+                                <path d="M50 80 L110 80 L100 130 L60 130 Z" fill="#60a5fa"/>
+                                <line x1="100" y1="75" x2="130" y2="45" stroke="#fbcfe8" stroke-width="8"/>
+                                <rect x="120" y="30" width="20" height="15" rx="2" fill="#ca8a04"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+    {% endfor %}
+</div>
+
+<!-- ==============================================
+     EDIT WIDGET SETTINGS MODAL POPUP
+     ============================================== -->
+<div class="modal fade" id="editWidgetModal" tabindex="-1" aria-labelledby="editWidgetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-3 border-0 shadow-lg text-start p-3 bg-white">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h4 class="modal-title fw-bold text-dark" id="editWidgetModalLabel" style="font-family: 'Outfit', sans-serif;">Edit</h4>
+                <button type="button" class="btn btn-light btn-sm text-secondary border px-2 py-0.5" data-bs-dismiss="modal">esc</button>
+            </div>
+            
+            <hr class="mx-3 my-2 text-muted opacity-25">
+
+            <form id="edit-widget-form" novalidate>
+                {% csrf_token %}
+                <input type="hidden" id="edit-widget-id" name="widget_id">
+                
+                <div class="modal-body py-3">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Name *</label>
+                            <input type="text" class="form-control" id="edit-widget-name" name="widget_name" required placeholder="Enter Name">
+                            <div class="invalid-feedback text-danger d-block" id="error-widget-name"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Type *</label>
+                            <select class="form-select" id="edit-widget-type" name="widget_type" required>
+                                <option value="" disabled selected>- Select Type -</option>
+                                <option value="Chart">Chart</option>
+                                <option value="Table">Table</option>
+                                <option value="Card">Card</option>
+                                <option value="Graph">Graph</option>
+                                <option value="Statistics">Statistics</option>
+                                <option value="Summary">Summary</option>
+                                <option value="List">List</option>
+                            </select>
+                            <div class="invalid-feedback text-danger d-block" id="error-widget-type"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Width</label>
+                            <select class="form-select" id="edit-widget-width" name="width" required>
+                                <option value="" disabled selected>- Select Width -</option>
+                                <option value="25">25%</option>
+                                <option value="33">33%</option>
+                                <option value="50">50%</option>
+                                <option value="66">66%</option>
+                                <option value="75">75%</option>
+                                <option value="100">100%</option>
+                            </select>
+                            <div class="invalid-feedback text-danger d-block" id="error-widget-width"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Sort</label>
+                            <input type="number" class="form-control" id="edit-widget-sort" name="sort_order" default="0">
+                            <div class="invalid-feedback text-danger d-block" id="error-widget-sort"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer border-top-0 pt-0 d-flex justify-content-end align-items-center gap-3">
+                    <button type="button" class="btn btn-link text-secondary text-decoration-none fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success px-4 fw-semibold" style="background-color: var(--success-color);">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<!-- Include ApexCharts scripts for dashboard graphs -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    // Initialize ApexCharts components
+    document.addEventListener("DOMContentLoaded", function () {
+        var optionsCashFlow = {
+            chart: { type: 'bar', height: 250, toolbar: { show: false } },
+            series: [{ name: 'Cash Flow', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }],
+            colors: ['#10b981'],
+            xaxis: { categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] }
+        };
+        var chartCF = new ApexCharts(document.querySelector("#cash-flow-chart"), optionsCashFlow);
+        chartCF.render();
+
+        var optionsPL = {
+            chart: { type: 'line', height: 250, toolbar: { show: false } },
+            series: [{ name: 'Profit', data: [0, 0, 0, 0, 0, 0] }],
+            colors: ['#3b82f6']
+        };
+        var chartPL = new ApexCharts(document.querySelector("#profit-loss-chart"), optionsPL);
+        chartPL.render();
+
+        var optionsExpCat = {
+            chart: { type: 'donut', height: 250 },
+            series: [44, 55, 41, 17, 15],
+            labels: ['Utilities', 'Rent', 'Salaries', 'Supplies', 'Marketing']
+        };
+        var chartEC = new ApexCharts(document.querySelector("#expenses-category-chart"), optionsExpCat);
+        chartEC.render();
+    });
+</script>
+<!-- Include client script logic -->
+<script src="{% static 'js/widget_modal.js' %}"></script>
+{% endblock %}

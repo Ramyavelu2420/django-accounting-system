@@ -1,0 +1,121 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Double-Entry Accounting - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/double_entry.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row align-items-start g-5 py-4">
+    <!-- Left Section: Navigation Cards -->
+    <div class="col-lg-6 text-start">
+        <h2 class="fw-bold text-dark mb-2" style="font-family: 'Outfit', sans-serif;">Double-Entry Accounting</h2>
+        <p class="text-secondary small mb-5" style="max-width: 520px;">Double-entry accounting records every financial transaction with equal debit and credit entries, ensuring your books remain balanced and accurate. Manage journals, charts of accounts, ledgers, trial balances, and financial reports from one place.</p>
+        
+        <!-- Navigation Cards -->
+        <div class="w-100" style="max-width: 540px;">
+            <!-- Chart of Accounts -->
+            <a href="#" class="double-entry-card">
+                <div class="double-entry-card-left">
+                    <span class="double-entry-card-title">Chart of Accounts</span>
+                    <span class="double-entry-card-desc">Create and manage your organization's chart of accounts.</span>
+                </div>
+                <i class="bi bi-chevron-right double-entry-card-chevron"></i>
+            </a>
+            
+            <!-- Journal Entries -->
+            <a href="#" class="double-entry-card">
+                <div class="double-entry-card-left">
+                    <span class="double-entry-card-title">Journal Entries</span>
+                    <span class="double-entry-card-desc">Record debit and credit transactions accurately.</span>
+                </div>
+                <i class="bi bi-chevron-right double-entry-card-chevron"></i>
+            </a>
+
+            <!-- General Ledger -->
+            <a href="#" class="double-entry-card">
+                <div class="double-entry-card-left">
+                    <span class="double-entry-card-title">General Ledger</span>
+                    <span class="double-entry-card-desc">View complete account activity and balances.</span>
+                </div>
+                <i class="bi bi-chevron-right double-entry-card-chevron"></i>
+            </a>
+
+            <!-- Trial Balance -->
+            <a href="#" class="double-entry-card">
+                <div class="double-entry-card-left">
+                    <span class="double-entry-card-title">Trial Balance</span>
+                    <span class="double-entry-card-desc">Verify that total debits equal total credits.</span>
+                </div>
+                <i class="bi bi-chevron-right double-entry-card-chevron"></i>
+            </a>
+
+            <!-- Financial Statements -->
+            <a href="#" class="double-entry-card">
+                <div class="double-entry-card-left">
+                    <span class="double-entry-card-title">Financial Statements</span>
+                    <span class="double-entry-card-desc">Generate Balance Sheet, Profit & Loss, and other accounting reports.</span>
+                </div>
+                <i class="bi bi-chevron-right double-entry-card-chevron"></i>
+            </a>
+
+            <!-- Settings -->
+            <a href="#" class="double-entry-card">
+                <div class="double-entry-card-left">
+                    <span class="double-entry-card-title">Settings</span>
+                    <span class="double-entry-card-desc">Configure fiscal years, accounting preferences, and posting rules.</span>
+                </div>
+                <i class="bi bi-chevron-right double-entry-card-chevron"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Right Section: 3D-styled professional Double-Entry vector SVG graphic -->
+    <div class="col-lg-6 d-flex justify-content-center align-items-center pt-5">
+        <!-- Original custom premium vector graphic illustration -->
+        <svg class="img-fluid" width="440" height="360" viewBox="0 0 440 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background shadow ring -->
+            <circle cx="220" cy="180" r="120" fill="#f8fafc"/>
+            
+            <!-- Desk and Ledger lines -->
+            <rect x="60" y="240" width="320" height="12" rx="4" fill="#cbd5e1"/>
+            
+            <!-- Balance scale representing accounting balance -->
+            <path d="M220 100 L220 240" stroke="#475569" stroke-width="6"/>
+            <path d="M150 120 L290 120" stroke="#475569" stroke-width="6"/>
+            <!-- Left hanging scale plate -->
+            <line x1="150" y1="120" x2="130" y2="180" stroke="#64748b" stroke-width="2"/>
+            <line x1="150" y1="120" x2="170" y2="180" stroke="#64748b" stroke-width="2"/>
+            <rect x="120" y="180" width="60" height="6" rx="2" fill="#3b82f6"/>
+            <!-- Right hanging scale plate -->
+            <line x1="290" y1="120" x2="270" y2="180" stroke="#64748b" stroke-width="2"/>
+            <line x1="290" y1="120" x2="310" y2="180" stroke="#64748b" stroke-width="2"/>
+            <rect x="260" y="180" width="60" height="6" rx="2" fill="#2563eb"/>
+            
+            <!-- Debit and Credit symbols on hanging plates -->
+            <text x="142" y="210" fill="#1e3a8a" font-size="16" font-weight="bold">DR</text>
+            <text x="282" y="210" fill="#1e3a8a" font-size="16" font-weight="bold">CR</text>
+            
+            <!-- Businessman / Businesswoman working together -->
+            <!-- Businessman -->
+            <circle cx="100" cy="160" r="12" fill="#fdba74"/>
+            <path d="M85 175 L115 175 L110 240 L90 240 Z" fill="#0ea5e9"/>
+            
+            <!-- Businesswoman -->
+            <circle cx="340" cy="160" r="12" fill="#fbcfe8"/>
+            <path d="M325 175 L355 175 L350 240 L330 240 Z" fill="#6366f1"/>
+            
+            <!-- Laptop displaying accounting dashboard in center foreground -->
+            <rect x="180" y="210" width="80" height="40" rx="3" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+            <rect x="185" y="215" width="70" height="30" fill="#ffffff"/>
+            <!-- Pie/Bar charts preview inside laptop -->
+            <circle cx="200" cy="230" r="8" fill="#3b82f6"/>
+            <rect x="220" y="222" width="6" height="16" fill="#10b981"/>
+            <rect x="230" y="218" width="6" height="20" fill="#10b981"/>
+            <rect x="240" y="226" width="6" height="12" fill="#10b981"/>
+        </svg>
+    </div>
+</div>
+{% endblock %}

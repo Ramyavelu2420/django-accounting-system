@@ -1,0 +1,156 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Vendors - Akaunting{% endblock %}
+
+{% block content %}
+<div class="py-4 text-start">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-dark" style="font-family: 'Outfit', sans-serif;">Vendors</h2>
+            <p class="text-secondary small mb-0">Overview of your registered business vendors.</p>
+        </div>
+        <a href="{% url 'vendor_create' %}" class="btn btn-success fw-semibold" style="background-color: var(--success-color);"><i class="bi bi-plus-lg me-1"></i> Add Vendor</a>
+    </div>
+
+    {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Search & Filter Form -->
+    <div class="card border-0 shadow-sm rounded-3 p-3 mb-4 bg-white">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ query }}" class="form-control bg-light border-start-0 ps-0" placeholder="Search vendor name...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary fw-semibold w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bootstrap Table -->
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                    <thead class="table-light text-secondary small fw-bold">
+                        <tr>
+                            <th class="ps-4 py-3"><a href="?q={{ query }}&sort={% if sort_by == 'vendor_name' %}-vendor_name{% else %}vendor_name{% endif %}" class="text-decoration-none text-secondary">NAME <i class="bi bi-arrow-down-up ms-1"></i></a></th>
+                            <th class="py-3">EMAIL</th>
+                            <th class="py-3">PHONE</th>
+                            <th class="py-3">REFERENCE</th>
+                            <th class="py-3">CURRENCY</th>
+                            <th class="py-3">CREATED DATE</th>
+                            <th class="pe-4 py-3 text-end">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vendor in page_obj %}
+                            <tr>
+                                <td class="ps-4 fw-semibold text-dark">
+                                    <div class="d-flex align-items-center gap-2">
+                                        {% if vendor.logo %}
+                                            <img src="{{ vendor.logo.url }}" alt="Logo" class="rounded-circle border" style="width: 32px; height: 32px; object-fit: cover;">
+                                        {% else %}
+                                            <span class="avatar-placeholder rounded-circle bg-light border d-flex justify-content-center align-items-center fw-bold text-secondary" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                {{ vendor.vendor_name|slice:":1"|upper }}
+                                            </span>
+                                        {% endif %}
+                                        <span>{{ vendor.vendor_name }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ vendor.email|default:"—" }}</td>
+                                <td>{{ vendor.phone|default:"—" }}</td>
+                                <td>{{ vendor.reference|default:"—" }}</td>
+                                <td><span class="badge bg-light text-dark border px-2 py-1">{{ vendor.currency }}</span></td>
+                                <td>{{ vendor.created_at|date:"d M Y" }}</td>
+                                <td class="pe-4 text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="{% url 'vendor_edit' vendor.id %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="triggerDeleteModal('{{ vendor.id }}', '{{ vendor.vendor_name }}')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-secondary">
+                                    <i class="bi bi-people fs-1 d-block mb-3 text-muted"></i>
+                                    <h5>No vendors found</h5>
+                                    <p class="small text-muted mb-0">Create new vendors or import them from Excel spreadsheets.</p>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <nav class="d-flex justify-content-between align-items-center mt-4">
+            <span class="text-secondary small">Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            <ul class="pagination pagination-sm mb-0">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?q={{ query }}&sort={{ sort_by }}&page={{ page_obj.previous_page_number }}">Previous</a></li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?q={{ query }}&sort={{ sort_by }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?q={{ query }}&sort={{ sort_by }}&page={{ page_obj.next_page_number }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+
+<!-- ==============================================
+     DELETE CONFIRMATION MODAL
+     ============================================== -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-3">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger" id="deleteConfirmationModalLabel">Delete Vendor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4 text-start">
+                <p>Are you sure you want to delete vendor <strong id="delete-vendor-name"></strong>?</p>
+                <p class="text-secondary small mb-0">This action will delete all corresponding contact persons and bills permanently.</p>
+            </div>
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-link text-secondary text-decoration-none fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="delete-confirm-btn" class="btn btn-danger fw-semibold px-4">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function triggerDeleteModal(vendorId, vendorName) {
+        document.getElementById("delete-vendor-name").textContent = vendorName;
+        document.getElementById("delete-confirm-btn").href = `/purchases/vendors/${vendorId}/delete/`;
+        const modal = new bootstrap.Modal(document.getElementById("deleteConfirmationModal"));
+        modal.show();
+    }
+</script>
+{% endblock %}
