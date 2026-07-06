@@ -28,6 +28,7 @@
         <!-- Navigation Cards -->
         <div class="w-100" style="max-width: 540px;">
             <!-- New Invoice Card -->
+            {% if perms.account.add_invoice %}
             <a href="{% url 'invoice_create' %}" class="invoice-card">
                 <div class="invoice-card-left">
                     <span class="fw-bold text-dark mb-1">New Invoice <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
@@ -35,8 +36,10 @@
                 </div>
                 <i class="bi bi-chevron-right text-secondary fs-5"></i>
             </a>
+            {% endif %}
             
             <!-- Import Invoices Card -->
+            {% if perms.account.import_invoice %}
             <a href="{% url 'invoice_import' %}" class="invoice-card">
                 <div class="invoice-card-left">
                     <span class="fw-bold text-dark mb-1">Import Invoices</span>
@@ -44,6 +47,7 @@
                 </div>
                 <i class="bi bi-chevron-right text-secondary fs-5"></i>
             </a>
+            {% endif %}
             
             <!-- Import Pro Invoices -->
             <a href="#" class="invoice-card">

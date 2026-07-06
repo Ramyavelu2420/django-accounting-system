@@ -11,7 +11,9 @@
             <h2 class="fw-bold mb-1 text-dark" style="font-family: 'Outfit', sans-serif;">Customers</h2>
             <p class="text-secondary small mb-0">Overview of your registered business clients.</p>
         </div>
+        {% if perms.account.add_customer %}
         <a href="{% url 'customer_create' %}" class="btn btn-success fw-semibold" style="background-color: var(--success-color);"><i class="bi bi-plus-lg me-1"></i> Add Customer</a>
+        {% endif %}
     </div>
 
     {% if messages %}
@@ -53,7 +55,9 @@
                             <th class="py-3">REFERENCE</th>
                             <th class="py-3">CURRENCY</th>
                             <th class="py-3">CREATED DATE</th>
+                            {% if perms.account.change_customer or perms.account.delete_customer %}
                             <th class="pe-4 py-3 text-end">ACTIONS</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -65,14 +69,20 @@
                                 <td>{{ customer.reference|default:"—" }}</td>
                                 <td><span class="badge bg-light text-dark border px-2 py-1">{{ customer.currency }}</span></td>
                                 <td>{{ customer.created_at|date:"d M Y" }}</td>
+                                {% if perms.account.change_customer or perms.account.delete_customer %}
                                 <td class="pe-4 text-end">
                                     <div class="d-flex justify-content-end gap-2">
+                                        {% if perms.account.change_customer %}
                                         <a href="{% url 'customer_edit' customer.id %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+                                        {% endif %}
+                                        {% if perms.account.delete_customer %}
                                         <button type="button" class="btn btn-outline-danger btn-sm" onclick="triggerDeleteModal('{{ customer.id }}', '{{ customer.name }}')">
                                             <i class="bi bi-trash"></i>
                                         </button>
+                                        {% endif %}
                                     </div>
                                 </td>
+                                {% endif %}
                             </tr>
                         {% empty %}
                             <tr>

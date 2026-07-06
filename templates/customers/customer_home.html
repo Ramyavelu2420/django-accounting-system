@@ -28,6 +28,7 @@
         <!-- Navigation Cards -->
         <div class="w-100" style="max-width: 540px;">
             <!-- New Customer -->
+            {% if perms.account.add_customer %}
             <a href="{% url 'customer_create' %}" class="customer-card">
                 <div class="customer-card-left">
                     <span class="customer-card-title">New Customer <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
@@ -35,8 +36,10 @@
                 </div>
                 <i class="bi bi-chevron-right customer-card-chevron"></i>
             </a>
+            {% endif %}
             
             <!-- Import Customers -->
+            {% if perms.account.import_customer %}
             <a href="{% url 'customer_import' %}" class="customer-card">
                 <div class="customer-card-left">
                     <span class="customer-card-title">Import Customers</span>
@@ -44,6 +47,7 @@
                 </div>
                 <i class="bi bi-chevron-right customer-card-chevron"></i>
             </a>
+            {% endif %}
             
             <!-- Import Pro Customers -->
             <a href="#" class="customer-card">

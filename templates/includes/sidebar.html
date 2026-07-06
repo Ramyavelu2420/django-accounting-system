@@ -34,14 +34,17 @@
             </li>
             
             <!-- Items -->
+            {% if perms.my_account.view_item %}
             <li class="nav-item">
                 <a href="{% url 'items_list' %}" class="nav-link d-flex align-items-center gap-3 px-3 py-2.5 rounded-3 {% if request.resolver_match.url_name == 'items_list' or request.resolver_match.url_name == 'item_create' or request.resolver_match.url_name == 'item_import' or request.resolver_match.url_name == 'inventory' %}active{% endif %}">
                     <i class="bi bi-box-seam"></i>
                     <span>Items</span>
                 </a>
             </li>
+            {% endif %}
             
             <!-- Sales Dropdown -->
+            {% if perms.my_account.view_invoice or perms.my_account.view_customer %}
             <li class="nav-item">
                 <div class="dropdown-header-link d-flex align-items-center justify-content-between px-3 py-2.5 rounded-3" data-target="#sales-dropdown">
                     <div class="d-flex align-items-center gap-3">
@@ -51,12 +54,18 @@
                     <i class="bi bi-chevron-down arrow-icon"></i>
                 </div>
                 <ul class="nav flex-column sidebar-dropdown-menu ps-5" id="sales-dropdown">
+                    {% if perms.my_account.view_invoice %}
                     <li class="nav-item"><a href="{% url 'invoices_list' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'invoices_list' or request.resolver_match.url_name == 'invoice_create' or request.resolver_match.url_name == 'invoice_detail' or request.resolver_match.url_name == 'invoice_edit' or request.resolver_match.url_name == 'invoice_import' %}active{% endif %}">Invoices</a></li>
+                    {% endif %}
+                    {% if perms.my_account.view_customer %}
                     <li class="nav-item"><a href="{% url 'customer_home' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'customer_home' or request.resolver_match.url_name == 'customer_create' or request.resolver_match.url_name == 'customers_list' or request.resolver_match.url_name == 'customer_edit' or request.resolver_match.url_name == 'customer_import' %}active{% endif %}">Customers</a></li>
+                    {% endif %}
                 </ul>
             </li>
+            {% endif %}
 
             <!-- Purchases Dropdown -->
+            {% if perms.my_account.view_bill or perms.my_account.view_vendor %}
             <li class="nav-item">
                 <div class="dropdown-header-link d-flex align-items-center justify-content-between px-3 py-2.5 rounded-3" data-target="#purchases-dropdown">
                     <div class="d-flex align-items-center gap-3">
@@ -66,12 +75,18 @@
                     <i class="bi bi-chevron-down arrow-icon"></i>
                 </div>
                 <ul class="nav flex-column sidebar-dropdown-menu ps-5" id="purchases-dropdown">
+                    {% if perms.my_account.view_bill %}
                     <li class="nav-item"><a href="{% url 'bills_landing' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'bills_landing' or request.resolver_match.url_name == 'bill_new' or request.resolver_match.url_name == 'bill_list' or request.resolver_match.url_name == 'bill_import' %}active{% endif %}">Bills</a></li>
+                    {% endif %}
+                    {% if perms.my_account.view_vendor %}
                     <li class="nav-item"><a href="{% url 'vendor_home' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'vendor_home' or request.resolver_match.url_name == 'vendor_create' or request.resolver_match.url_name == 'vendors_list' or request.resolver_match.url_name == 'vendor_import' %}active{% endif %}">Vendors</a></li>
+                    {% endif %}
                 </ul>
             </li>
+            {% endif %}
 
             <!-- Banking Dropdown -->
+            {% if perms.my_account.view_account or perms.my_account.view_incometransaction or perms.my_account.view_expensetransaction or perms.my_account.view_transfer or perms.my_account.view_reconciliation %}
             <li class="nav-item">
                 <div class="dropdown-header-link d-flex align-items-center justify-content-between px-3 py-2.5 rounded-3" data-target="#banking-dropdown">
                     <div class="d-flex align-items-center gap-3">
@@ -81,14 +96,24 @@
                     <i class="bi bi-chevron-down arrow-icon"></i>
                 </div>
                 <ul class="nav flex-column sidebar-dropdown-menu ps-5" id="banking-dropdown">
+                    {% if perms.my_account.view_account %}
                     <li class="nav-item"><a href="{% url 'account_list' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'account_list' or request.resolver_match.url_name == 'account_create' or request.resolver_match.url_name == 'account_edit' %}active{% endif %}">Accounts</a></li>
+                    {% endif %}
+                    {% if perms.my_account.view_incometransaction or perms.my_account.view_expensetransaction %}
                     <li class="nav-item"><a href="{% url 'transaction_list' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'transaction_list' or request.resolver_match.url_name == 'new_income' or request.resolver_match.url_name == 'new_expense' %}active{% endif %}">Transactions</a></li>
+                    {% endif %}
+                    {% if perms.my_account.view_transfer %}
                     <li class="nav-item"><a href="{% url 'transfers_landing' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'transfers_landing' or request.resolver_match.url_name == 'new_transfer' or request.resolver_match.url_name == 'import_transfers' %}active{% endif %}">Transfers</a></li>
+                    {% endif %}
+                    {% if perms.my_account.view_reconciliation %}
                     <li class="nav-item"><a href="{% url 'reconciliation_landing' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'reconciliation_landing' or request.resolver_match.url_name == 'new_reconciliation' %}active{% endif %}">Reconciliation</a></li>
+                    {% endif %}
                 </ul>
             </li>
+            {% endif %}
 
             <!-- Double Entry -->
+            {% if request.user.is_superuser or request.user.groups.all.0.name == 'Admin' or request.user.groups.all.1.name == 'Admin' %}
             <li class="nav-item">
                 <div class="dropdown-header-link d-flex align-items-center justify-content-between px-3 py-2.5 rounded-3 {% if request.resolver_match.url_name == 'double_entry_landing' %}active{% endif %}" onclick="location.href='{% url 'double_entry_landing' %}'" style="cursor: pointer;">
                     <div class="d-flex align-items-center gap-3">
@@ -97,22 +122,27 @@
                     </div>
                 </div>
             </li>
+            {% endif %}
 
             <!-- Reports -->
+            {% if perms.my_account.view_report %}
             <li class="nav-item">
                 <a href="{% url 'reports_landing' %}" class="nav-link d-flex align-items-center gap-3 px-3 py-2.5 rounded-3 {% if request.resolver_match.url_name == 'reports_landing' %}active{% endif %}">
                     <i class="bi bi-graph-up"></i>
                     <span>Reports</span>
                 </a>
             </li>
+            {% endif %}
 
             <!-- Apps -->
+            {% if request.user.is_superuser or request.user.groups.all.0.name == 'Admin' or request.user.groups.all.1.name == 'Admin' %}
             <li class="nav-item">
                 <a href="{% url 'apps_marketplace' %}" class="nav-link d-flex align-items-center gap-3 px-3 py-2.5 rounded-3 {% if request.resolver_match.url_name == 'apps_marketplace' %}active{% endif %}">
                     <i class="bi bi-grid"></i>
                     <span>Apps</span>
                 </a>
             </li>
+            {% endif %}
 
             <!-- Switch -->
             <li class="nav-item">
