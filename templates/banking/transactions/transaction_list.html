@@ -10,6 +10,71 @@
 {% block block_title %}Transactions{% endblock %}
 
 {% block content %}
+{% if records_exist %}
+<div class="py-4 text-start">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-dark" style="font-family: 'Outfit', sans-serif;">Transactions</h2>
+            <p class="text-secondary small mb-0">Overview of all business income and expense transactions.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'new_income' %}" class="btn btn-success fw-semibold" style="background-color: var(--success-color);"><i class="bi bi-plus-lg me-1"></i> Add Income</a>
+            <a href="{% url 'new_expense' %}" class="btn btn-danger fw-semibold"><i class="bi bi-dash-lg me-1"></i> Add Expense</a>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Bootstrap Table -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                    <thead class="table-light text-secondary small fw-bold">
+                        <tr>
+                            <th class="ps-4 py-3">DATE</th>
+                            <th class="py-3">NUMBER</th>
+                            <th class="py-3">TYPE</th>
+                            <th class="py-3">ACCOUNT</th>
+                            <th class="py-3">CONTACT</th>
+                            <th class="py-3">PAYMENT METHOD</th>
+                            <th class="pe-4 py-3 text-end">AMOUNT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td class="ps-4 text-secondary">{{ transaction.date|date:"d M Y" }}</td>
+                                <td class="fw-semibold text-dark">{{ transaction.number }}</td>
+                                <td>
+                                    <span class="badge {% if transaction.type == 'Income' %}bg-success bg-opacity-10 text-success{% else %}bg-danger bg-opacity-10 text-danger{% endif %} px-2.5 py-1">
+                                        {{ transaction.type }}
+                                    </span>
+                                </td>
+                                <td>{{ transaction.account }}</td>
+                                <td>{{ transaction.contact }}</td>
+                                <td>{{ transaction.payment_method }}</td>
+                                <td class="pe-4 text-end fw-bold {% if transaction.amount > 0 %}text-success{% else %}text-danger{% endif %}">
+                                    ₹{{ transaction.amount }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
 <div class="row align-items-center g-5 py-4">
     <!-- Left Section: Navigation Cards -->
     <div class="col-lg-6 text-start">
@@ -30,28 +95,19 @@
         <!-- Navigation Cards -->
         <div class="w-100" style="max-width: 540px;">
             <!-- New Income -->
-            <a href="{% url 'new_income' %}" class="transaction-card">
+            <a href="{% url 'new_income' %}" class="transaction-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; text-decoration: none; color: inherit; margin-bottom: 1rem; background: #fff;">
                 <div class="transaction-card-left">
-                    <span class="transaction-card-title">New Income <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
-                    <span class="transaction-card-desc">Enter the details and create your first Income</span>
+                    <span class="transaction-card-title" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">New Income <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
+                    <span class="transaction-card-desc" style="font-size: 0.85rem; color: #64748b;">Enter the details and create your first Income</span>
                 </div>
                 <i class="bi bi-chevron-right transaction-card-chevron"></i>
             </a>
             
             <!-- New Expense -->
-            <a href="{% url 'new_expense' %}" class="transaction-card">
+            <a href="{% url 'new_expense' %}" class="transaction-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; text-decoration: none; color: inherit; margin-bottom: 1rem; background: #fff;">
                 <div class="transaction-card-left">
-                    <span class="transaction-card-title">New Expense</span>
-                    <span class="transaction-card-desc">Enter the details and create your first Expense</span>
-                </div>
-                <i class="bi bi-chevron-right transaction-card-chevron"></i>
-            </a>
-            
-            <!-- Connect Your Bank -->
-            <a href="#" class="transaction-card">
-                <div class="transaction-card-left">
-                    <span class="transaction-card-title">Connect Your Bank</span>
-                    <span class="transaction-card-desc">Import transactions securely to automate your bookkeeping and reports</span>
+                    <span class="transaction-card-title" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">New Expense</span>
+                    <span class="transaction-card-desc" style="font-size: 0.85rem; color: #64748b;">Enter the details and create your first Expense</span>
                 </div>
                 <i class="bi bi-chevron-right transaction-card-chevron"></i>
             </a>
@@ -86,4 +142,5 @@
         </svg>
     </div>
 </div>
+{% endif %}
 {% endblock %}

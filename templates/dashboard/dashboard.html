@@ -68,18 +68,18 @@
                         </div>
                     </div>
                     <p class="widget-subtitle mb-4">Amount that you're yet to receive from your customers</p>
-                    <h6 class="mb-3 text-secondary small">Total unpaid invoices: <strong class="text-dark">₹0.00</strong></h6>
+                    <h6 class="mb-3 text-secondary small">Total unpaid invoices: <strong class="text-dark">₹{{ total_receivables|floatformat:2 }}</strong></h6>
                     <div class="progress mb-4" style="height: 10px; background-color: #eef0f3; border-radius: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar" role="progressbar" style="width: {{ receivables_progress }}%;" aria-valuenow="{{ receivables_progress }}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     <div class="d-flex gap-4">
                         <div>
                             <span class="d-block text-secondary small">Open</span>
-                            <span class="fw-bold fs-5 text-dark">₹0.00</span>
+                            <span class="fw-bold fs-5 text-dark">₹{{ open_receivables|floatformat:2 }}</span>
                         </div>
                         <div>
                             <span class="d-block text-secondary small">Overdue</span>
-                            <span class="fw-bold fs-5 text-dark d-flex align-items-center gap-1">₹0.00 <i class="bi bi-caret-down-fill small text-muted" style="font-size: 0.6rem;"></i></span>
+                            <span class="fw-bold fs-5 text-dark d-flex align-items-center gap-1">₹{{ overdue_receivables|floatformat:2 }} <i class="bi bi-caret-down-fill small text-muted" style="font-size: 0.6rem;"></i></span>
                         </div>
                     </div>
                 </div>
@@ -102,18 +102,18 @@
                         </div>
                     </div>
                     <p class="widget-subtitle mb-4">Amount that you're yet to pay to your vendors</p>
-                    <h6 class="mb-3 text-secondary small">Total unpaid bills: <strong class="text-dark">₹0.00</strong></h6>
+                    <h6 class="mb-3 text-secondary small">Total unpaid bills: <strong class="text-dark">₹{{ total_payables|floatformat:2 }}</strong></h6>
                     <div class="progress mb-4" style="height: 10px; background-color: #eef0f3; border-radius: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar" role="progressbar" style="width: {{ payables_progress }}%;" aria-valuenow="{{ payables_progress }}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     <div class="d-flex gap-4">
                         <div>
                             <span class="d-block text-secondary small">Open</span>
-                            <span class="fw-bold fs-5 text-dark">₹0.00</span>
+                            <span class="fw-bold fs-5 text-dark">₹{{ open_payables|floatformat:2 }}</span>
                         </div>
                         <div>
                             <span class="d-block text-secondary small">Overdue</span>
-                            <span class="fw-bold fs-5 text-dark d-flex align-items-center gap-1">₹0.00 <i class="bi bi-caret-down-fill small text-muted" style="font-size: 0.6rem;"></i></span>
+                            <span class="fw-bold fs-5 text-dark d-flex align-items-center gap-1">₹{{ overdue_payables|floatformat:2 }} <i class="bi bi-caret-down-fill small text-muted" style="font-size: 0.6rem;"></i></span>
                         </div>
                     </div>
                 </div>
@@ -144,15 +144,15 @@
                             <div class="d-flex flex-column gap-3">
                                 <div>
                                     <span class="d-block text-secondary small">Incoming</span>
-                                    <h4 class="fw-bold text-success mb-0">₹0</h4>
+                                    <h4 class="fw-bold text-success mb-0">₹{{ total_incoming|floatformat:2 }}</h4>
                                 </div>
                                 <div class="border-top pt-2">
                                     <span class="d-block text-secondary small">Outgoing</span>
-                                    <h4 class="fw-bold text-danger mb-0">₹0</h4>
+                                    <h4 class="fw-bold text-danger mb-0">₹{{ total_outgoing|floatformat:2 }}</h4>
                                 </div>
                                 <div class="border-top pt-2">
                                     <span class="d-block text-secondary small">Net Profit</span>
-                                    <h4 class="fw-bold text-dark mb-0">₹0</h4>
+                                    <h4 class="fw-bold text-dark mb-0">₹{{ net_profit|floatformat:2 }}</h4>
                                 </div>
                             </div>
                         </div>
@@ -217,10 +217,14 @@
                     </div>
                     <p class="widget-subtitle mb-4">Current balance of your bank accounts</p>
                     <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                        {% for account_info in dashboard_accounts %}
                         <div class="d-flex justify-content-between align-items-center border-bottom py-3">
-                            <span class="fw-medium text-secondary">Cash</span>
-                            <strong class="text-dark fs-5">₹0.00</strong>
+                            <span class="fw-medium text-secondary">{{ account_info.name }}</span>
+                            <strong class="text-dark fs-5">₹{{ account_info.balance|floatformat:2 }}</strong>
                         </div>
+                        {% empty %}
+                        <div class="text-secondary small text-center py-3">No bank accounts found.</div>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -251,6 +255,38 @@
                                 <rect x="120" y="30" width="20" height="15" rx="2" fill="#ca8a04"/>
                             </svg>
                         </div>
+                    </div>
+                </div>
+
+            {% elif widget.widget_name == 'Recent Activity' %}
+                <!-- Recent Activity Card -->
+                <div class="widget-card p-4 h-100 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h5 class="widget-title mb-0" id="widget-title-{{ widget.id }}">{{ widget.widget_name }}</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
+                                <li><a class="dropdown-menu-item dropdown-item small edit-widget-trigger" href="#" data-id="{{ widget.id }}">Edit Width</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="widget-subtitle mb-4">Latest actions performed in the system</p>
+                    <div class="flex-grow-1 overflow-y-auto" style="max-height: 300px;">
+                        <ul class="list-unstyled mb-0">
+                            {% for act in recent_activities %}
+                                <li class="d-flex align-items-start gap-2 border-bottom py-2">
+                                    <i class="bi bi-info-circle text-primary mt-0.5"></i>
+                                    <div>
+                                        <span class="small d-block text-dark">{{ act.text }}</span>
+                                        <span class="text-muted" style="font-size: 0.75rem;">{{ act.time|date:"d M Y, H:i" }}</span>
+                                    </div>
+                                </li>
+                            {% empty %}
+                                <li class="text-secondary small text-center py-3">No recent activities.</li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
             {% endif %}
@@ -337,7 +373,7 @@
     document.addEventListener("DOMContentLoaded", function () {
         var optionsCashFlow = {
             chart: { type: 'bar', height: 250, toolbar: { show: false } },
-            series: [{ name: 'Cash Flow', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }],
+            series: [{ name: 'Cash Flow', data: {{ net_flow_data|safe }} }],
             colors: ['#10b981'],
             xaxis: { categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] }
         };
@@ -346,16 +382,17 @@
 
         var optionsPL = {
             chart: { type: 'line', height: 250, toolbar: { show: false } },
-            series: [{ name: 'Profit', data: [0, 0, 0, 0, 0, 0] }],
-            colors: ['#3b82f6']
+            series: [{ name: 'Profit', data: {{ pl_series_data|safe }} }],
+            colors: ['#3b82f6'],
+            xaxis: { categories: {{ pl_labels|safe }} }
         };
         var chartPL = new ApexCharts(document.querySelector("#profit-loss-chart"), optionsPL);
         chartPL.render();
 
         var optionsExpCat = {
             chart: { type: 'donut', height: 250 },
-            series: [44, 55, 41, 17, 15],
-            labels: ['Utilities', 'Rent', 'Salaries', 'Supplies', 'Marketing']
+            series: {{ exp_series|safe }},
+            labels: {{ exp_labels|safe }}
         };
         var chartEC = new ApexCharts(document.querySelector("#expenses-category-chart"), optionsExpCat);
         chartEC.render();

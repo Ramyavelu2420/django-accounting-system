@@ -4,6 +4,7 @@
 {% block title %}Vendors - Akaunting{% endblock %}
 
 {% block content %}
+{% if page_obj or query %}
 <div class="py-4 text-start">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -11,7 +12,7 @@
             <h2 class="fw-bold mb-1 text-dark" style="font-family: 'Outfit', sans-serif;">Vendors</h2>
             <p class="text-secondary small mb-0">Overview of your registered business vendors.</p>
         </div>
-        {% if perms.account.add_vendor %}
+        {% if perms.my_account.add_vendor %}
         <a href="{% url 'vendor_create' %}" class="btn btn-success fw-semibold" style="background-color: var(--success-color);"><i class="bi bi-plus-lg me-1"></i> Add Vendor</a>
         {% endif %}
     </div>
@@ -43,19 +44,17 @@
     </div>
 
     <!-- Bootstrap Table -->
-    <div class="card border-0 shadow-sm rounded-3">
+    <div class="card border-0 shadow-sm rounded-3 bg-white">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
                     <thead class="table-light text-secondary small fw-bold">
                         <tr>
-                            <th class="ps-4 py-3"><a href="?q={{ query }}&sort={% if sort_by == 'vendor_name' %}-vendor_name{% else %}vendor_name{% endif %}" class="text-decoration-none text-secondary">NAME <i class="bi bi-arrow-down-up ms-1"></i></a></th>
-                            <th class="py-3">EMAIL</th>
+                            <th class="ps-4 py-3">VENDOR NAME</th>
                             <th class="py-3">PHONE</th>
-                            <th class="py-3">REFERENCE</th>
-                            <th class="py-3">CURRENCY</th>
-                            <th class="py-3">CREATED DATE</th>
-                            {% if perms.account.change_vendor or perms.account.delete_vendor %}
+                            <th class="py-3">EMAIL</th>
+                            <th class="py-3">GST/TAX NUMBER</th>
+                            {% if perms.my_account.change_vendor or perms.my_account.delete_vendor %}
                             <th class="pe-4 py-3 text-end">ACTIONS</th>
                             {% endif %}
                         </tr>
@@ -75,19 +74,17 @@
                                         <span>{{ vendor.vendor_name }}</span>
                                     </div>
                                 </td>
-                                <td>{{ vendor.email|default:"—" }}</td>
                                 <td>{{ vendor.phone|default:"—" }}</td>
-                                <td>{{ vendor.reference|default:"—" }}</td>
-                                <td><span class="badge bg-light text-dark border px-2 py-1">{{ vendor.currency }}</span></td>
-                                <td>{{ vendor.created_at|date:"d M Y" }}</td>
-                                {% if perms.account.change_vendor or perms.account.delete_vendor %}
+                                <td>{{ vendor.email|default:"—" }}</td>
+                                <td>{{ vendor.tax_number|default:"—" }}</td>
+                                {% if perms.my_account.change_vendor or perms.my_account.delete_vendor %}
                                 <td class="pe-4 text-end">
                                     <div class="d-flex justify-content-end gap-2">
-                                        {% if perms.account.change_vendor %}
+                                        {% if perms.my_account.change_vendor %}
                                         <a href="{% url 'vendor_edit' vendor.id %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
                                         {% endif %}
-                                        {% if perms.account.delete_vendor %}
-                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="triggerDeleteModal('{{ vendor.id }}', '{{ vendor.vendor_name }}')">
+                                        {% if perms.my_account.delete_vendor %}
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="triggerDeleteModal('{{ vendor.id }}', '{{ vendor.vendor_name|escapejs }}')">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                         {% endif %}
@@ -97,7 +94,7 @@
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="7" class="text-center py-5 text-secondary">
+                                <td colspan="5" class="text-center py-5 text-secondary">
                                     <i class="bi bi-people fs-1 d-block mb-3 text-muted"></i>
                                     <h5>No vendors found</h5>
                                     <p class="small text-muted mb-0">Create new vendors or import them from Excel spreadsheets.</p>
@@ -132,6 +129,66 @@
         </nav>
     {% endif %}
 </div>
+{% else %}
+<div class="row align-items-center g-5 py-4">
+    <!-- Left Section: Navigation Options -->
+    <div class="col-lg-6 text-start">
+        <h2 class="fw-bold text-dark mb-2" style="font-family: 'Outfit', sans-serif;">Vendors</h2>
+        <p class="text-secondary small mb-5" style="max-width: 500px;">Vendors are required if you want to create bills. You can see the balance you owe and filter reports by the vendor.</p>
+        
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Navigation Cards -->
+        <div class="w-100" style="max-width: 540px;">
+            <!-- New Vendor -->
+            {% if perms.my_account.add_vendor %}
+            <a href="{% url 'vendor_create' %}" class="vendor-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; text-decoration: none; color: inherit; margin-bottom: 1rem; background: #fff;">
+                <div class="vendor-card-left">
+                    <span class="vendor-card-title" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">New Vendor <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
+                    <span class="vendor-card-desc" style="font-size: 0.85rem; color: #64748b;">Enter the details and create your first vendor</span>
+                </div>
+                <i class="bi bi-chevron-right vendor-card-chevron"></i>
+            </a>
+            {% endif %}
+            
+            <!-- Import Vendors -->
+            {% if perms.my_account.import_vendor %}
+            <a href="{% url 'vendor_import' %}" class="vendor-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; text-decoration: none; color: inherit; margin-bottom: 1rem; background: #fff;">
+                <div class="vendor-card-left">
+                    <span class="vendor-card-title" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Import Vendors</span>
+                    <span class="vendor-card-desc" style="font-size: 0.85rem; color: #64748b;">Import your existing vendors with a single click</span>
+                </div>
+                <i class="bi bi-chevron-right vendor-card-chevron"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Right Section: Graphic -->
+    <div class="col-lg-6 d-flex justify-content-center align-items-center">
+        <svg class="img-fluid" width="400" height="320" viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="200" cy="150" r="80" fill="#f8fafc"/>
+            <path d="M120 220 L280 220 L270 260 L130 260 Z" fill="#cbd5e1"/>
+            <rect x="150" y="100" width="100" height="120" rx="8" fill="#3b82f6"/>
+            <rect x="165" y="120" width="70" height="15" rx="2" fill="#fff"/>
+            <rect x="165" y="145" width="50" height="8" rx="1" fill="#93c5fd"/>
+            <rect x="165" y="160" width="70" height="8" rx="1" fill="#93c5fd"/>
+            <circle cx="200" cy="80" r="18" fill="#fda4af"/>
+            <path d="M185 105 L215 105 L210 160 L190 160 Z" fill="#1e293b"/>
+        </svg>
+    </div>
+</div>
+{% endif %}
+
 
 <!-- ==============================================
      DELETE CONFIRMATION MODAL

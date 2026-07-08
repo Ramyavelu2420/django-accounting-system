@@ -28,7 +28,7 @@
         <!-- Navigation Cards -->
         <div class="w-100" style="max-width: 540px;">
             <!-- New Vendor -->
-            {% if perms.account.add_vendor %}
+            {% if perms.my_account.add_vendor %}
             <a href="{% url 'vendor_create' %}" class="vendor-card">
                 <div class="vendor-card-left">
                     <span class="vendor-card-title">New Vendor <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
@@ -39,7 +39,7 @@
             {% endif %}
             
             <!-- Import Vendors -->
-            {% if perms.account.import_vendor %}
+            {% if perms.my_account.import_vendor %}
             <a href="{% url 'vendor_import' %}" class="vendor-card">
                 <div class="vendor-card-left">
                     <span class="vendor-card-title">Import Vendors</span>

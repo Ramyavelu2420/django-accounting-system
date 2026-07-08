@@ -222,6 +222,7 @@ def dashboard(request):
             ('Expenses By Category', 'Chart', 50, 4),
             ('Account Balance', 'List', 50, 5),
             ('Connect Bank Accounts', 'Summary', 50, 6),
+            ('Recent Activity', 'List', 50, 7),
         ]
         for name, wtype, width, order in defaults:
             DashboardWidget.objects.get_or_create(
@@ -229,12 +230,205 @@ def dashboard(request):
                 defaults={'widget_type': wtype, 'width': width, 'sort_order': order}
             )
 
+    # Make sure 'Recent Activity' widget is present in the dashboard widgets list
+    DashboardWidget.objects.get_or_create(
+        user=request.user, dashboard=active_db, widget_name='Recent Activity',
+        defaults={'widget_type': 'List', 'width': 50, 'sort_order': 7}
+    )
+
     widgets = DashboardWidget.objects.filter(user=request.user, dashboard=active_db, is_active=True).order_by('sort_order')
+
+    # --- Live Dashboard ORM Calculations ---
+    from django.db.models import Sum
+    from django.db.models.functions import ExtractMonth
+    import datetime
+
+    today = timezone.now().date()
+    current_year = today.year
+
+    # 1. Receivables (Invoices)
+    invoices = Invoice.objects.filter(company=company)
+    total_sales_amount = invoices.aggregate(Sum('total'))['total__sum'] or 0.00
+    overdue_receivables = invoices.filter(due_date__lt=today).aggregate(Sum('total'))['total__sum'] or 0.00
+    open_receivables = invoices.filter(due_date__gte=today).aggregate(Sum('total'))['total__sum'] or 0.00
+    total_receivables = float(total_sales_amount)
+    
+    receivables_progress = 0
+    if total_receivables > 0:
+        receivables_progress = int((float(open_receivables) / total_receivables) * 100)
+
+    # 2. Payables (Bills)
+    bills = Bill.objects.filter(company=company)
+    total_payables_amount = bills.aggregate(Sum('total'))['total__sum'] or 0.00
+    overdue_payables = bills.filter(due_date__lt=today).aggregate(Sum('total'))['total__sum'] or 0.00
+    open_payables = bills.filter(due_date__gte=today).aggregate(Sum('total'))['total__sum'] or 0.00
+    total_payables = float(total_payables_amount)
+    
+    payables_progress = 0
+    if total_payables > 0:
+        payables_progress = int((float(open_payables) / total_payables) * 100)
+
+    # 3. Cash Flow (Transactions)
+    income_txs = IncomeTransaction.objects.filter(company=company)
+    expense_txs = ExpenseTransaction.objects.filter(company=company)
+    
+    total_incoming = income_txs.aggregate(Sum('amount'))['amount__sum'] or 0.00
+    total_outgoing = expense_txs.aggregate(Sum('amount'))['amount__sum'] or 0.00
+    net_profit = total_incoming - total_outgoing
+
+    # Monthly Cash Flow (Jan-Dec) for ApexCharts
+    monthly_income = income_txs.filter(date__year=current_year)\
+        .annotate(month=ExtractMonth('date'))\
+        .values('month')\
+        .annotate(total=Sum('amount'))\
+        .order_by('month')
+        
+    monthly_expense = expense_txs.filter(date__year=current_year)\
+        .annotate(month=ExtractMonth('date'))\
+        .values('month')\
+        .annotate(total=Sum('amount'))\
+        .order_by('month')
+
+    income_data = [0.0] * 12
+    expense_data = [0.0] * 12
+    net_flow_data = [0.0] * 12
+
+    for item in monthly_income:
+        m = item['month']
+        if 1 <= m <= 12:
+            income_data[m-1] = float(item['total'])
+
+    for item in monthly_expense:
+        m = item['month']
+        if 1 <= m <= 12:
+            expense_data[m-1] = float(item['total'])
+
+    for i in range(12):
+        net_flow_data[i] = income_data[i] - expense_data[i]
+
+    # 4. Profit & Loss (Last 6 Months)
+    pl_labels = []
+    pl_series_data = []
+    for i in range(5, -1, -1):
+        first_day_of_month = (today.replace(day=1) - datetime.timedelta(days=i*30)).replace(day=1)
+        m_num = first_day_of_month.month
+        y_num = first_day_of_month.year
+        pl_labels.append(first_day_of_month.strftime('%b'))
+        
+        inc = income_txs.filter(date__year=y_num, date__month=m_num).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        exp = expense_txs.filter(date__year=y_num, date__month=m_num).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        pl_series_data.append(float(inc - exp))
+
+    # 5. Expenses by Category (Top 5)
+    category_expenses = expense_txs.values('category__name')\
+        .annotate(total=Sum('amount'))\
+        .order_by('-total')[:5]
+
+    exp_labels = [item['category__name'] or 'General/Uncategorized' for item in category_expenses]
+    exp_series = [float(item['total']) for item in category_expenses]
+    if not exp_series:
+        exp_labels = ['No Expenses']
+        exp_series = [0.0]
+
+    # 6. Account Balances (Real-time recalculation)
+    accounts = Account.objects.filter(company=company)
+    dashboard_accounts = []
+    for acc in accounts:
+        inc_sum = income_txs.filter(account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        exp_sum = expense_txs.filter(account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        from_transfers = Transfer.objects.filter(company=company, from_account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        to_transfers = Transfer.objects.filter(company=company, to_account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        
+        balance = float(acc.opening_balance) + float(inc_sum) - float(exp_sum) - float(from_transfers) + float(to_transfers)
+        dashboard_accounts.append({
+            'name': acc.name,
+            'balance': balance
+        })
+
+    # 7. Recent Activities (Merged latest 10)
+    activities = []
+    
+    # Invoices
+    for inv in Invoice.objects.filter(company=company).order_by('-created_at')[:10]:
+        activities.append({
+            'time': inv.created_at,
+            'text': f"Invoice {inv.invoice_number} created for {inv.customer.name} (Total: ₹{inv.total})"
+        })
+    # Customers
+    for cust in Customer.objects.filter(company=company).order_by('-created_at')[:10]:
+        activities.append({
+            'time': cust.created_at,
+            'text': f"Customer '{cust.name}' added to contacts"
+        })
+    # Vendors
+    for vend in Vendor.objects.filter(company=company).order_by('-created_at')[:10]:
+        activities.append({
+            'time': vend.created_at,
+            'text': f"Vendor '{vend.vendor_name}' added to contacts"
+        })
+    # Bills
+    for b in Bill.objects.filter(company=company).order_by('-created_at')[:10]:
+        activities.append({
+            'time': b.created_at,
+            'text': f"Bill {b.bill_number} created from {b.vendor.vendor_name} (Total: ₹{b.total})"
+        })
+    # Income Transactions
+    for inc in IncomeTransaction.objects.filter(company=company).order_by('-created_at')[:10]:
+        activities.append({
+            'time': inc.created_at,
+            'text': f"Payment of ₹{inc.amount} received (Tx: {inc.number})"
+        })
+    # Expense Transactions
+    for exp in ExpenseTransaction.objects.filter(company=company).order_by('-created_at')[:10]:
+        activities.append({
+            'time': exp.created_at,
+            'text': f"Expense of ₹{exp.amount} recorded (Tx: {exp.number})"
+        })
+    # Transfers
+    for tr in Transfer.objects.filter(company=company).order_by('-created_at')[:10]:
+        activities.append({
+            'time': tr.created_at,
+            'text': f"Transfer of ₹{tr.amount} completed from {tr.from_account.name} to {tr.to_account.name}"
+        })
+
+    activities.sort(key=lambda x: x['time'] or timezone.now(), reverse=True)
+    recent_activities = activities[:10]
+
     return render(request, 'dashboard/dashboard.html', {
         'company': company,
         'widgets': widgets,
         'dashboards': dashboards,
-        'active_db': active_db
+        'active_db': active_db,
+        
+        # Receivables
+        'total_receivables': total_receivables,
+        'receivables_progress': receivables_progress,
+        'open_receivables': open_receivables,
+        'overdue_receivables': overdue_receivables,
+        
+        # Payables
+        'total_payables': total_payables,
+        'payables_progress': payables_progress,
+        'open_payables': open_payables,
+        'overdue_payables': overdue_payables,
+        
+        # Cash Flow
+        'total_incoming': total_incoming,
+        'total_outgoing': total_outgoing,
+        'net_profit': net_profit,
+        'net_flow_data': net_flow_data,
+        
+        # Profit & Loss
+        'pl_labels': pl_labels,
+        'pl_series_data': pl_series_data,
+        
+        # Expenses By Category
+        'exp_labels': exp_labels,
+        'exp_series': exp_series,
+        
+        # Account Balances & Activities
+        'dashboard_accounts': dashboard_accounts,
+        'recent_activities': recent_activities,
     })
 
 
@@ -247,7 +441,9 @@ def items_list_view(request):
             return redirect('landing')
     except Company.DoesNotExist:
         return redirect('company_setup')
-    return render(request, 'items/index.html', {'company': company})
+    from account.models import Item
+    items = Item.objects.filter(company=company)
+    return render(request, 'items/index.html', {'company': company, 'items': items})
 
 
 @login_required
@@ -416,38 +612,43 @@ def invoice_create_view(request):
     if request.method == 'POST':
         form = InvoiceForm(request.POST, company=company)
         if form.is_valid():
-            invoice = form.save(commit=False)
-            invoice.company = company
-            invoice.created_by = request.user
-            
-            invoice.subtotal = request.POST.get('subtotal', 0.00)
-            invoice.discount = request.POST.get('discount', 0.00)
-            invoice.tax_amount = request.POST.get('tax_amount', 0.00)
-            invoice.total = request.POST.get('total', 0.00)
-            invoice.save()
+            from django.db import transaction
+            try:
+                with transaction.atomic():
+                    invoice = form.save(commit=False)
+                    invoice.company = company
+                    invoice.created_by = request.user
+                    
+                    invoice.subtotal = request.POST.get('subtotal', 0.00)
+                    invoice.discount = request.POST.get('discount', 0.00)
+                    invoice.tax_amount = request.POST.get('tax_amount', 0.00)
+                    invoice.total = request.POST.get('total', 0.00)
+                    invoice.save()
 
-            items_json = request.POST.get('items_data')
-            if items_json:
-                items_data = json.loads(items_json)
-                for item_data in items_data:
-                    item_id = item_data.get('item_id')
-                    item_obj = Item.objects.filter(id=item_id).first() if item_id else None
-                    InvoiceItem.objects.create(
-                        invoice=invoice,
-                        item=item_obj,
-                        name=item_data.get('name', ''),
-                        description=item_data.get('description', ''),
-                        quantity=item_data.get('quantity', 1),
-                        price=item_data.get('price', 0.00),
-                        amount=item_data.get('amount', 0.00)
-                    )
+                    items_json = request.POST.get('items_data')
+                    if items_json:
+                        items_data = json.loads(items_json)
+                        for item_data in items_data:
+                            item_id = item_data.get('item_id')
+                            item_obj = Item.objects.filter(id=item_id).first() if item_id else None
+                            InvoiceItem.objects.create(
+                                invoice=invoice,
+                                item=item_obj,
+                                name=item_data.get('name', ''),
+                                description=item_data.get('description', ''),
+                                quantity=item_data.get('quantity', 1),
+                                price=item_data.get('price', 0.00),
+                                amount=item_data.get('amount', 0.00)
+                            )
 
-            files = request.FILES.getlist('attachment_files')
-            for f in files:
-                InvoiceAttachment.objects.create(invoice=invoice, file=f)
+                    files = request.FILES.getlist('attachment_files')
+                    for f in files:
+                        InvoiceAttachment.objects.create(invoice=invoice, file=f)
 
-            messages.success(request, "Invoice Created Successfully")
-            return redirect('invoices_list')
+                messages.success(request, "Invoice Created Successfully")
+                return redirect('invoices_list')
+            except Exception as e:
+                messages.error(request, f"Error saving invoice: {str(e)}")
     else:
         form = InvoiceForm(company=company, initial={
             'invoice_number': next_invoice_number,
@@ -516,36 +717,41 @@ def invoice_edit_view(request, id):
     if request.method == 'POST':
         form = InvoiceForm(request.POST, instance=invoice, company=company)
         if form.is_valid():
-            invoice = form.save(commit=False)
-            invoice.subtotal = request.POST.get('subtotal', 0.00)
-            invoice.discount = request.POST.get('discount', 0.00)
-            invoice.tax_amount = request.POST.get('tax_amount', 0.00)
-            invoice.total = request.POST.get('total', 0.00)
-            invoice.save()
+            from django.db import transaction
+            try:
+                with transaction.atomic():
+                    invoice = form.save(commit=False)
+                    invoice.subtotal = request.POST.get('subtotal', 0.00)
+                    invoice.discount = request.POST.get('discount', 0.00)
+                    invoice.tax_amount = request.POST.get('tax_amount', 0.00)
+                    invoice.total = request.POST.get('total', 0.00)
+                    invoice.save()
 
-            invoice.items.all().delete()
-            items_json = request.POST.get('items_data')
-            if items_json:
-                items_data = json.loads(items_json)
-                for item_data in items_data:
-                    item_id = item_data.get('item_id')
-                    item_obj = Item.objects.filter(id=item_id).first() if item_id else None
-                    InvoiceItem.objects.create(
-                        invoice=invoice,
-                        item=item_obj,
-                        name=item_data.get('name', ''),
-                        description=item_data.get('description', ''),
-                        quantity=item_data.get('quantity', 1),
-                        price=item_data.get('price', 0.00),
-                        amount=item_data.get('amount', 0.00)
-                    )
+                    invoice.items.all().delete()
+                    items_json = request.POST.get('items_data')
+                    if items_json:
+                        items_data = json.loads(items_json)
+                        for item_data in items_data:
+                            item_id = item_data.get('item_id')
+                            item_obj = Item.objects.filter(id=item_id).first() if item_id else None
+                            InvoiceItem.objects.create(
+                                invoice=invoice,
+                                item=item_obj,
+                                name=item_data.get('name', ''),
+                                description=item_data.get('description', ''),
+                                quantity=item_data.get('quantity', 1),
+                                price=item_data.get('price', 0.00),
+                                amount=item_data.get('amount', 0.00)
+                            )
 
-            files = request.FILES.getlist('attachment_files')
-            for f in files:
-                InvoiceAttachment.objects.create(invoice=invoice, file=f)
+                    files = request.FILES.getlist('attachment_files')
+                    for f in files:
+                        InvoiceAttachment.objects.create(invoice=invoice, file=f)
 
-            messages.success(request, "Invoice Updated Successfully")
-            return redirect('invoice_detail', id=invoice.id)
+                messages.success(request, "Invoice Updated Successfully")
+                return redirect('invoice_detail', id=invoice.id)
+            except Exception as e:
+                messages.error(request, f"Error updating invoice: {str(e)}")
     else:
         form = InvoiceForm(instance=invoice, company=company)
         
@@ -654,6 +860,10 @@ def customer_home_view(request):
         company = request.user.company
     except Company.DoesNotExist:
         return redirect('company_setup')
+    from account.models import Customer
+    customers = Customer.objects.filter(company=company)
+    if customers.exists():
+        return redirect('customers_list')
     return render(request, 'customers/customer_home.html', {'company': company})
 
 
@@ -856,6 +1066,9 @@ class BillsLandingView(View):
             company = request.user.company
         except Company.DoesNotExist:
             return redirect('company_setup')
+        from account.models import Bill
+        if Bill.objects.filter(company=company).exists():
+            return redirect('bill_list')
         return render(request, 'purchases/bills/landing.html', {'company': company})
 
 
@@ -906,34 +1119,53 @@ class SaveBillView(View):
 
         form = BillForm(request.POST, request.FILES, company=company)
         if form.is_valid():
-            bill = form.save(commit=False)
-            bill.company = company
-            bill.created_by = request.user
-            
-            bill.subtotal = request.POST.get('subtotal', 0.00)
-            bill.discount = request.POST.get('discount', 0.00)
-            bill.tax = request.POST.get('tax', 0.00)
-            bill.total = request.POST.get('total', 0.00)
-            bill.save()
+            from django.db import transaction
+            try:
+                with transaction.atomic():
+                    bill = form.save(commit=False)
+                    bill.company = company
+                    bill.created_by = request.user
+                    
+                    bill.subtotal = request.POST.get('subtotal', 0.00)
+                    bill.discount = request.POST.get('discount', 0.00)
+                    bill.tax = request.POST.get('tax', 0.00)
+                    bill.total = request.POST.get('total', 0.00)
+                    bill.save()
 
-            items_json = request.POST.get('items_data')
-            if items_json:
-                items_data = json.loads(items_json)
-                for item_data in items_data:
-                    BillItem.objects.create(
-                        bill=bill,
-                        item_name=item_data.get('name', ''),
-                        description=item_data.get('description', ''),
-                        quantity=item_data.get('quantity', 1),
-                        price=item_data.get('price', 0.00),
-                        amount=item_data.get('amount', 0.00)
-                    )
-
-            messages.success(request, "Bill created successfully.")
-            return redirect('bill_list')
+                    items_json = request.POST.get('items_data')
+                    if items_json:
+                        items_data = json.loads(items_json)
+                        for item_data in items_data:
+                            BillItem.objects.create(
+                                bill=bill,
+                                item_name=item_data.get('name', ''),
+                                description=item_data.get('description', ''),
+                                quantity=item_data.get('quantity', 1),
+                                price=item_data.get('price', 0.00),
+                                amount=item_data.get('amount', 0.00)
+                            )
+                messages.success(request, "Bill created successfully.")
+                return redirect('bill_list')
+            except Exception as e:
+                messages.error(request, f"Error saving bill: {str(e)}")
+                items = Item.objects.filter(company=company)
+                vendor_form = VendorDetailsForm(company=company)
+                return render(request, 'purchases/bills/new_bill.html', {
+                    'form': form,
+                    'company': company,
+                    'items': items,
+                    'vendor_form': vendor_form
+                })
         else:
             messages.error(request, "Please correct the form errors.")
-            return redirect('bill_new')
+            items = Item.objects.filter(company=company)
+            vendor_form = VendorDetailsForm(company=company)
+            return render(request, 'purchases/bills/new_bill.html', {
+                'form': form,
+                'company': company,
+                'items': items,
+                'vendor_form': vendor_form
+            })
 
 
 @method_decorator(login_required, name='dispatch')
@@ -1029,6 +1261,9 @@ def vendor_home_view(request):
         company = request.user.company
     except Company.DoesNotExist:
         return redirect('company_setup')
+    from account.models import Vendor
+    if Vendor.objects.filter(company=company).exists():
+        return redirect('vendors_list')
     return render(request, 'vendors/index.html', {'company': company})
 
 
@@ -1246,6 +1481,21 @@ def account_list_view(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # Calculate real-time current balances
+    # pyrefly: ignore [missing-import]
+    from django.db.models import Sum
+    from account.models import IncomeTransaction, ExpenseTransaction, Transfer
+    income_txs = IncomeTransaction.objects.filter(company=company)
+    expense_txs = ExpenseTransaction.objects.filter(company=company)
+
+    for acc in page_obj:
+        inc_sum = income_txs.filter(account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        exp_sum = expense_txs.filter(account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        from_transfers = Transfer.objects.filter(company=company, from_account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        to_transfers = Transfer.objects.filter(company=company, to_account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        
+        acc.current_balance = float(acc.opening_balance) + float(inc_sum) - float(exp_sum) - float(from_transfers) + float(to_transfers)
+
     return render(request, 'banking/accounts/list.html', {
         'company': company,
         'page_obj': page_obj,
@@ -1327,7 +1577,40 @@ def transaction_list(request):
         company = request.user.company
     except Company.DoesNotExist:
         return redirect('company_setup')
-    return render(request, 'banking/transactions/transaction_list.html', {'company': company})
+    from account.models import IncomeTransaction, ExpenseTransaction
+    incomes = IncomeTransaction.objects.filter(company=company)
+    expenses = ExpenseTransaction.objects.filter(company=company)
+    
+    transactions = []
+    for inc in incomes:
+        transactions.append({
+            'id': inc.id,
+            'type': 'Income',
+            'date': inc.date,
+            'number': inc.number,
+            'account': inc.account.name if inc.account else '—',
+            'contact': inc.customer.name if inc.customer else '—',
+            'amount': inc.amount,
+            'payment_method': inc.payment_method,
+        })
+    for exp in expenses:
+        transactions.append({
+            'id': exp.id,
+            'type': 'Expense',
+            'date': exp.date,
+            'number': exp.number,
+            'account': exp.account.name if exp.account else '—',
+            'contact': exp.vendor.vendor_name if exp.vendor else '—',
+            'amount': -exp.amount,
+            'payment_method': exp.payment_method,
+        })
+    transactions.sort(key=lambda x: x['date'], reverse=True)
+    records_exist = len(transactions) > 0
+    return render(request, 'banking/transactions/transaction_list.html', {
+        'company': company,
+        'transactions': transactions,
+        'records_exist': records_exist,
+    })
 
 
 @login_required
@@ -1579,6 +1862,7 @@ def delete_transfer(request, id):
 
 
 import csv
+# pyrefly: ignore [missing-import]
 from django.http import HttpResponse
 
 @login_required
@@ -1662,7 +1946,7 @@ def import_transfers(request):
                             from_account=from_acc,
                             to_account=to_acc,
                             date=date_str,
-                            amount=amount_val,
+                            amount=amount_val, 
                             payment_method=pay_method,
                             reference=ref,
                             description=desc,

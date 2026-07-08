@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-v8r)*&64h(^th#b0_5q%z=9ft055rx)trz55gqsy81^n8vyt8u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -86,8 +86,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "invoice_db",
-        "USER": "ramya",
-        "PASSWORD": "ramya",
+        "USER":"ramya",
+        "PASSWORD":"ramya",
         "HOST": "localhost",
         "PORT": "5432",
     }

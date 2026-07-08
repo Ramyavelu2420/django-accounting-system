@@ -4,6 +4,7 @@
 {% block title %}Customers - Akaunting{% endblock %}
 
 {% block content %}
+{% if page_obj or query %}
 <div class="py-4 text-start">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -11,7 +12,7 @@
             <h2 class="fw-bold mb-1 text-dark" style="font-family: 'Outfit', sans-serif;">Customers</h2>
             <p class="text-secondary small mb-0">Overview of your registered business clients.</p>
         </div>
-        {% if perms.account.add_customer %}
+        {% if perms.my_account.add_customer %}
         <a href="{% url 'customer_create' %}" class="btn btn-success fw-semibold" style="background-color: var(--success-color);"><i class="bi bi-plus-lg me-1"></i> Add Customer</a>
         {% endif %}
     </div>
@@ -43,19 +44,17 @@
     </div>
 
     <!-- Bootstrap Table -->
-    <div class="card border-0 shadow-sm rounded-3">
+    <div class="card border-0 shadow-sm rounded-3 bg-white">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
                     <thead class="table-light text-secondary small fw-bold">
                         <tr>
-                            <th class="ps-4 py-3"><a href="?q={{ query }}&sort={% if sort_by == 'name' %}-name{% else %}name{% endif %}" class="text-decoration-none text-secondary">NAME <i class="bi bi-arrow-down-up ms-1"></i></a></th>
-                            <th class="py-3"><a href="?q={{ query }}&sort={% if sort_by == 'email' %}-email{% else %}email{% endif %}" class="text-decoration-none text-secondary">EMAIL <i class="bi bi-arrow-down-up ms-1"></i></a></th>
+                            <th class="ps-4 py-3">CUSTOMER NAME</th>
+                            <th class="py-3">EMAIL</th>
                             <th class="py-3">PHONE</th>
-                            <th class="py-3">REFERENCE</th>
-                            <th class="py-3">CURRENCY</th>
-                            <th class="py-3">CREATED DATE</th>
-                            {% if perms.account.change_customer or perms.account.delete_customer %}
+                            <th class="py-3">BALANCE</th>
+                            {% if perms.my_account.change_customer or perms.my_account.delete_customer %}
                             <th class="pe-4 py-3 text-end">ACTIONS</th>
                             {% endif %}
                         </tr>
@@ -63,20 +62,25 @@
                     <tbody>
                         {% for customer in page_obj %}
                             <tr>
-                                <td class="ps-4 fw-semibold text-dark">{{ customer.name }}</td>
+                                <td class="ps-4 fw-semibold text-dark">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                            <i class="bi bi-person text-secondary"></i>
+                                        </div>
+                                        {{ customer.name }}
+                                    </div>
+                                </td>
                                 <td>{{ customer.email|default:"—" }}</td>
                                 <td>{{ customer.phone|default:"—" }}</td>
-                                <td>{{ customer.reference|default:"—" }}</td>
-                                <td><span class="badge bg-light text-dark border px-2 py-1">{{ customer.currency }}</span></td>
-                                <td>{{ customer.created_at|date:"d M Y" }}</td>
-                                {% if perms.account.change_customer or perms.account.delete_customer %}
+                                <td class="fw-semibold">₹{{ customer.balance|default:"0.00" }}</td>
+                                {% if perms.my_account.change_customer or perms.my_account.delete_customer %}
                                 <td class="pe-4 text-end">
                                     <div class="d-flex justify-content-end gap-2">
-                                        {% if perms.account.change_customer %}
+                                        {% if perms.my_account.change_customer %}
                                         <a href="{% url 'customer_edit' customer.id %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
                                         {% endif %}
-                                        {% if perms.account.delete_customer %}
-                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="triggerDeleteModal('{{ customer.id }}', '{{ customer.name }}')">
+                                        {% if perms.my_account.delete_customer %}
+                                        <button type="button" onclick="triggerDeleteModal({{ customer.id }}, '{{ customer.name|escapejs }}')" class="btn btn-outline-danger btn-sm">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                         {% endif %}
@@ -86,7 +90,7 @@
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="7" class="text-center py-5 text-secondary">
+                                <td colspan="5" class="text-center py-5 text-secondary">
                                     <i class="bi bi-people fs-1 d-block mb-3 text-muted"></i>
                                     <h5>No customers found</h5>
                                     <p class="small text-muted mb-0">Create new customers or import them from Excel spreadsheets.</p>
@@ -121,6 +125,69 @@
         </nav>
     {% endif %}
 </div>
+{% else %}
+<div class="row align-items-center g-5 py-4">
+    <!-- Left Section: Navigation Cards -->
+    <div class="col-lg-6 text-start">
+        <h2 class="fw-bold text-dark mb-2" style="font-family: 'Outfit', sans-serif;">Customers</h2>
+        <p class="text-secondary small mb-5" style="max-width: 500px;">Customers are required if you want to create invoices. They may also log in to Client Portal and see their balance.</p>
+        
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Navigation Cards -->
+        <div class="w-100" style="max-width: 540px;">
+            <!-- New Customer -->
+            {% if perms.my_account.add_customer %}
+            <a href="{% url 'customer_create' %}" class="customer-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; text-decoration: none; color: inherit; margin-bottom: 1rem; background: #fff;">
+                <div class="customer-card-left">
+                    <span class="customer-card-title" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">New Customer <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
+                    <span class="customer-card-desc" style="font-size: 0.85rem; color: #64748b;">Enter the details and create your first customer</span>
+                </div>
+                <i class="bi bi-chevron-right customer-card-chevron"></i>
+            </a>
+            {% endif %}
+            
+            <!-- Import Customers -->
+            {% if perms.my_account.import_customer %}
+            <a href="{% url 'customer_import' %}" class="customer-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; text-decoration: none; color: inherit; margin-bottom: 1rem; background: #fff;">
+                <div class="customer-card-left">
+                    <span class="customer-card-title" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Import Customers</span>
+                    <span class="customer-card-desc" style="font-size: 0.85rem; color: #64748b;">Import your existing customers with a single click</span>
+                </div>
+                <i class="bi bi-chevron-right customer-card-chevron"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Right Section: unDraw Customers Vector SVG -->
+    <div class="col-lg-6 d-flex justify-content-center align-items-center">
+        <svg class="img-fluid" width="400" height="320" viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="200" cy="150" r="80" fill="#f1f5f9"/>
+            <rect x="150" y="180" width="30" height="40" rx="3" fill="#fda4af"/>
+            <path d="M158 180 C158 170, 172 170, 172 180" stroke="#f43f5e" stroke-width="2"/>
+            <rect x="220" y="170" width="40" height="50" rx="3" fill="#93c5fd"/>
+            <path d="M230 170 C230 158, 250 158, 250 170" stroke="#2563eb" stroke-width="2"/>
+            <circle cx="200" cy="100" r="15" fill="#fbcfe8"/>
+            <path d="M190 92 C192 80, 208 80, 210 92 Z" fill="#1e293b"/>
+            <path d="M185 115 L215 115 L210 180 L190 180 Z" fill="#059669"/>
+            <line x1="185" y1="120" x2="165" y2="180" stroke="#fbcfe8" stroke-width="4"/>
+            <line x1="215" y1="120" x2="240" y2="170" stroke="#fbcfe8" stroke-width="4"/>
+            <line x1="193" y1="180" x2="180" y2="240" stroke="#1e293b" stroke-width="5"/>
+            <line x1="207" y1="180" x2="220" y2="230" stroke="#1e293b" stroke-width="5"/>
+        </svg>
+    </div>
+</div>
+{% endif %}</div>
 
 <!-- ==============================================
      DELETE CONFIRMATION MODAL

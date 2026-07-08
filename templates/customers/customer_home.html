@@ -28,7 +28,7 @@
         <!-- Navigation Cards -->
         <div class="w-100" style="max-width: 540px;">
             <!-- New Customer -->
-            {% if perms.account.add_customer %}
+            {% if perms.my_account.add_customer %}
             <a href="{% url 'customer_create' %}" class="customer-card">
                 <div class="customer-card-left">
                     <span class="customer-card-title">New Customer <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
@@ -39,7 +39,7 @@
             {% endif %}
             
             <!-- Import Customers -->
-            {% if perms.account.import_customer %}
+            {% if perms.my_account.import_customer %}
             <a href="{% url 'customer_import' %}" class="customer-card">
                 <div class="customer-card-left">
                     <span class="customer-card-title">Import Customers</span>

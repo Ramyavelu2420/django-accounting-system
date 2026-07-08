@@ -4,6 +4,7 @@
 {% block title %}Accounts - Akaunting{% endblock %}
 
 {% block content %}
+{% if page_obj or query %}
 <div class="py-4 text-start">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -72,6 +73,49 @@
         </nav>
     {% endif %}
 </div>
+{% else %}
+<div class="row align-items-center g-5 py-4 text-start">
+    <div class="col-lg-6">
+        <h2 class="fw-bold text-dark mb-2" style="font-family: 'Outfit', sans-serif;">Accounts</h2>
+        <p class="text-secondary small mb-5" style="max-width: 500px;">Create bank accounts, credit cards, or cash accounts to track your business deposits and payments dynamically.</p>
+
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="w-100" style="max-width: 540px;">
+            <a href="{% url 'account_create' %}" class="account-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; text-decoration: none; color: inherit; margin-bottom: 1rem; background: #fff;">
+                <div>
+                    <span style="font-weight: 600; display: block; margin-bottom: 0.25rem;">New Account <span class="badge bg-success rounded-circle" style="width: 8px; height: 8px; padding: 0; display: inline-block;"></span></span>
+                    <span style="font-size: 0.85rem; color: #64748b;">Create cash, credit cards or bank accounts manually</span>
+                </div>
+                <i class="bi bi-chevron-right"></i>
+            </a>
+
+            <button type="button" class="btn w-100 border text-secondary fw-semibold py-3 rounded-3 text-start bg-white d-flex justify-content-between align-items-center">
+                <span>Connect Your Bank</span>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 d-flex justify-content-center align-items-center">
+        <svg class="img-fluid" width="400" height="320" viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="200" cy="150" r="80" fill="#f1f5f9"/>
+            <line x1="100" y1="220" x2="300" y2="220" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round"/>
+            <rect x="160" y="110" width="80" height="110" rx="8" fill="#475569"/>
+            <rect x="175" y="130" width="50" height="12" rx="2" fill="#64748b"/>
+        </svg>
+    </div>
+</div>
+{% endif %}
 
 <!-- ==============================================
      DELETE CONFIRMATION MODAL

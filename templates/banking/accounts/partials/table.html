@@ -26,7 +26,7 @@
                     <td>{{ account.number }}</td>
                     <td>{{ account.bank_name|default:"N/A" }}</td>
                     <td>{{ account.bank_phone|default:"N/A" }}</td>
-                    <td class="fw-bold text-dark">₹{{ account.opening_balance }}</td>
+                    <td class="fw-bold text-dark">₹{{ account.current_balance|default:account.opening_balance|floatformat:2 }}</td>
                     <td class="pe-4 text-end">
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{% url 'account_edit' account.id %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
