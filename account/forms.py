@@ -212,7 +212,7 @@ class ItemForm(forms.ModelForm):
     def clean_name(self):
         name = self.cleaned_data.get('name')
         if self.company:
-            qs = Item.objects.filter(company=self.company, name__iexact=name)
+            qs = Item.objects.filter(company__name=self.company.name, name__iexact=name)
             if self.instance and self.instance.pk:
                 qs = qs.exclude(pk=self.instance.pk)
             if qs.exists():
@@ -270,7 +270,7 @@ class InvoiceForm(forms.ModelForm):
         self.company = kwargs.pop('company', None)
         super().__init__(*args, **kwargs)
         if self.company:
-            self.fields['customer'].queryset = Customer.objects.filter(company=self.company)
+            self.fields['customer'].queryset = Customer.objects.filter(company__name=self.company.name)
         self.fields['category'].queryset = InvoiceCategory.objects.filter(status='Active')
 
 

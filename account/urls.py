@@ -80,4 +80,5 @@ urlpatterns = [
     path('dashboard/widget/<int:id>/update/', views.widget_update_api, name='widget_update_api'),
     path('dashboard/new/', views.new_dashboard, name='new_dashboard'),
     path('dashboard/save/', views.save_dashboard, name='save_dashboard'),
+    path('notifications/mark-read/<int:id>/', views.mark_notification_read, name='mark_notification_read'),
 ]

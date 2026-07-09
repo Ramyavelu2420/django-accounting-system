@@ -24,12 +24,66 @@
             </button>
 
             <!-- Notifications -->
-            <div class="position-relative">
-                <button class="btn btn-light rounded-circle p-2 d-flex align-items-center justify-content-center border" style="width: 38px; height: 38px;">
+            <div class="dropdown">
+                <button class="btn btn-light rounded-circle p-2 d-flex align-items-center justify-content-center border position-relative" style="width: 38px; height: 38px;" id="notificationBellDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-bell text-secondary"></i>
+                    {% if unread_notification_count > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-warning text-dark border border-white" style="font-size: 0.7rem; padding: 0.25em 0.5em;">{{ unread_notification_count }}</span>
+                    {% else %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-warning text-dark border border-white d-none" style="font-size: 0.7rem; padding: 0.25em 0.5em;">0</span>
+                    {% endif %}
                 </button>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-warning text-dark border border-white" style="font-size: 0.7rem; padding: 0.25em 0.5em;">4</span>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2" aria-labelledby="notificationBellDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                    <li><h6 class="dropdown-header px-2 py-1">Notifications</h6></li>
+                    <li><hr class="dropdown-divider"></li>
+                    {% if latest_notifications %}
+                        {% for notif in latest_notifications %}
+                            <li class="notification-item py-2 px-3 rounded {% if not notif.read_status %}bg-light fw-bold{% endif %}" data-id="{{ notif.id }}" style="cursor: pointer;">
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-dark">{{ notif.title }}</span>
+                                    <span class="text-muted" style="font-size: 0.75rem;">{{ notif.timestamp|timesince }} ago</span>
+                                </div>
+                                <p class="mb-0 text-muted small mt-1">{{ notif.message }}</p>
+                            </li>
+                            {% if not forloop.last %}<li><hr class="dropdown-divider"></li>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <li><span class="dropdown-item-text text-muted small text-center d-block py-3">No notifications</span></li>
+                    {% endif %}
+                </ul>
             </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        fetch(`/notifications/mark-read/${id}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': '{{ csrf_token }}',
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                this.classList.remove('bg-light', 'fw-bold');
+                                const badge = document.querySelector('#notificationBellDropdown .badge');
+                                if (badge) {
+                                    badge.innerText = data.unread_count;
+                                    if (data.unread_count === 0) {
+                                        badge.classList.add('d-none');
+                                    } else {
+                                        badge.classList.remove('d-none');
+                                    }
+                                }
+                            }
+                        });
+                    });
+                });
+            });
+            </script>
 
             <!-- Profile Dropdown -->
             <div class="dropdown">

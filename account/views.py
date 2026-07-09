@@ -5,8 +5,9 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.utils import timezone
 import json
+from decimal import Decimal
 from .forms import RegistrationForm, LoginForm, CompanySetupForm, CompanyProfileForm, BusinessProfileForm, ItemForm, CustomerForm, InvoiceForm, CustomerDetailsForm, VendorForm, BillForm, VendorDetailsForm, AccountForm, IncomeTransactionForm, ExpenseTransactionForm, TransferForm, ReconciliationForm, ReportForm, ScheduledReportForm, ReportEditForm, DashboardWidgetForm, DashboardForm
-from .models import Company, Category, Tax, IncomeAccount, ExpenseAccount, Item, Customer, InvoiceCategory, Invoice, InvoiceItem, InvoiceAttachment, CustomerContact, Vendor, Bill, BillItem, VendorContact, Account, IncomeTransaction, ExpenseTransaction, Transfer, Reconciliation, ReconciliationTransaction, Report, PinnedReport, ScheduledReport, App, AppInstallation, DashboardWidget, Dashboard
+from .models import Company, Category, Tax, IncomeAccount, ExpenseAccount, Item, Customer, InvoiceCategory, Invoice, InvoiceItem, InvoiceAttachment, CustomerContact, Vendor, Bill, BillItem, VendorContact, Account, IncomeTransaction, ExpenseTransaction, Transfer, Reconciliation, ReconciliationTransaction, Report, PinnedReport, ScheduledReport, App, AppInstallation, DashboardWidget, Dashboard, Notification
 
 
 def is_google_configured(request):
@@ -272,8 +273,8 @@ def dashboard(request):
     income_txs = IncomeTransaction.objects.filter(company=company)
     expense_txs = ExpenseTransaction.objects.filter(company=company)
     
-    total_incoming = income_txs.aggregate(Sum('amount'))['amount__sum'] or 0.00
-    total_outgoing = expense_txs.aggregate(Sum('amount'))['amount__sum'] or 0.00
+    total_incoming = income_txs.aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+    total_outgoing = expense_txs.aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
     net_profit = total_incoming - total_outgoing
 
     # Monthly Cash Flow (Jan-Dec) for ApexCharts
@@ -315,8 +316,8 @@ def dashboard(request):
         y_num = first_day_of_month.year
         pl_labels.append(first_day_of_month.strftime('%b'))
         
-        inc = income_txs.filter(date__year=y_num, date__month=m_num).aggregate(Sum('amount'))['amount__sum'] or 0.00
-        exp = expense_txs.filter(date__year=y_num, date__month=m_num).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        inc = income_txs.filter(date__year=y_num, date__month=m_num).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+        exp = expense_txs.filter(date__year=y_num, date__month=m_num).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
         pl_series_data.append(float(inc - exp))
 
     # 5. Expenses by Category (Top 5)
@@ -334,10 +335,10 @@ def dashboard(request):
     accounts = Account.objects.filter(company=company)
     dashboard_accounts = []
     for acc in accounts:
-        inc_sum = income_txs.filter(account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
-        exp_sum = expense_txs.filter(account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
-        from_transfers = Transfer.objects.filter(company=company, from_account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
-        to_transfers = Transfer.objects.filter(company=company, to_account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        inc_sum = income_txs.filter(account=acc).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+        exp_sum = expense_txs.filter(account=acc).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+        from_transfers = Transfer.objects.filter(company=company, from_account=acc).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+        to_transfers = Transfer.objects.filter(company=company, to_account=acc).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
         
         balance = float(acc.opening_balance) + float(inc_sum) - float(exp_sum) - float(from_transfers) + float(to_transfers)
         dashboard_accounts.append({
@@ -345,54 +346,14 @@ def dashboard(request):
             'balance': balance
         })
 
-    # 7. Recent Activities (Merged latest 10)
+    # 7. Recent Activities (Merged latest 10 from Notification table)
     activities = []
-    
-    # Invoices
-    for inv in Invoice.objects.filter(company=company).order_by('-created_at')[:10]:
+    for notif in Notification.objects.filter(recipient=request.user, company__name=company.name).order_by('-timestamp')[:10]:
         activities.append({
-            'time': inv.created_at,
-            'text': f"Invoice {inv.invoice_number} created for {inv.customer.name} (Total: ₹{inv.total})"
+            'time': notif.timestamp,
+            'text': notif.message
         })
-    # Customers
-    for cust in Customer.objects.filter(company=company).order_by('-created_at')[:10]:
-        activities.append({
-            'time': cust.created_at,
-            'text': f"Customer '{cust.name}' added to contacts"
-        })
-    # Vendors
-    for vend in Vendor.objects.filter(company=company).order_by('-created_at')[:10]:
-        activities.append({
-            'time': vend.created_at,
-            'text': f"Vendor '{vend.vendor_name}' added to contacts"
-        })
-    # Bills
-    for b in Bill.objects.filter(company=company).order_by('-created_at')[:10]:
-        activities.append({
-            'time': b.created_at,
-            'text': f"Bill {b.bill_number} created from {b.vendor.vendor_name} (Total: ₹{b.total})"
-        })
-    # Income Transactions
-    for inc in IncomeTransaction.objects.filter(company=company).order_by('-created_at')[:10]:
-        activities.append({
-            'time': inc.created_at,
-            'text': f"Payment of ₹{inc.amount} received (Tx: {inc.number})"
-        })
-    # Expense Transactions
-    for exp in ExpenseTransaction.objects.filter(company=company).order_by('-created_at')[:10]:
-        activities.append({
-            'time': exp.created_at,
-            'text': f"Expense of ₹{exp.amount} recorded (Tx: {exp.number})"
-        })
-    # Transfers
-    for tr in Transfer.objects.filter(company=company).order_by('-created_at')[:10]:
-        activities.append({
-            'time': tr.created_at,
-            'text': f"Transfer of ₹{tr.amount} completed from {tr.from_account.name} to {tr.to_account.name}"
-        })
-
-    activities.sort(key=lambda x: x['time'] or timezone.now(), reverse=True)
-    recent_activities = activities[:10]
+    recent_activities = activities
 
     return render(request, 'dashboard/dashboard.html', {
         'company': company,
@@ -442,7 +403,7 @@ def items_list_view(request):
     except Company.DoesNotExist:
         return redirect('company_setup')
     from account.models import Item
-    items = Item.objects.filter(company=company)
+    items = Item.objects.filter(company__name=company.name)
     return render(request, 'items/index.html', {'company': company, 'items': items})
 
 
@@ -565,7 +526,7 @@ def inventory_view(request):
     except Company.DoesNotExist:
         return redirect('company_setup')
         
-    items = Item.objects.filter(company=company)
+    items = Item.objects.filter(company__name=company.name)
     return render(request, 'items/inventory.html', {'company': company, 'items': items})
 
 
@@ -656,8 +617,8 @@ def invoice_create_view(request):
             'due_date': timezone.now().strftime('%Y-%m-%d')
         })
     
-    customers = Customer.objects.filter(company=company)
-    items = Item.objects.filter(company=company)
+    customers = Customer.objects.filter(company__name=company.name)
+    items = Item.objects.filter(company__name=company.name)
     categories = InvoiceCategory.objects.filter(status='Active')
     customer_form = CustomerForm()
 
@@ -755,8 +716,8 @@ def invoice_edit_view(request, id):
     else:
         form = InvoiceForm(instance=invoice, company=company)
         
-    customers = Customer.objects.filter(company=company)
-    items = Item.objects.filter(company=company)
+    customers = Customer.objects.filter(company__name=company.name)
+    items = Item.objects.filter(company__name=company.name)
     categories = InvoiceCategory.objects.filter(status='Active')
     customer_form = CustomerForm()
 
@@ -1489,10 +1450,10 @@ def account_list_view(request):
     expense_txs = ExpenseTransaction.objects.filter(company=company)
 
     for acc in page_obj:
-        inc_sum = income_txs.filter(account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
-        exp_sum = expense_txs.filter(account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
-        from_transfers = Transfer.objects.filter(company=company, from_account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
-        to_transfers = Transfer.objects.filter(company=company, to_account=acc).aggregate(Sum('amount'))['amount__sum'] or 0.00
+        inc_sum = income_txs.filter(account=acc).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+        exp_sum = expense_txs.filter(account=acc).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+        from_transfers = Transfer.objects.filter(company=company, from_account=acc).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+        to_transfers = Transfer.objects.filter(company=company, to_account=acc).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
         
         acc.current_balance = float(acc.opening_balance) + float(inc_sum) - float(exp_sum) - float(from_transfers) + float(to_transfers)
 
@@ -2584,6 +2545,17 @@ def save_dashboard(request):
                 'form': form
             })
     return redirect('new_dashboard')
+
+
+@login_required
+def mark_notification_read(request, id):
+    notif = get_object_or_404(Notification, id=id, recipient=request.user)
+    notif.read_status = True
+    notif.save()
+    return JsonResponse({
+        'status': 'success',
+        'unread_count': Notification.objects.filter(recipient=request.user, read_status=False, company__name=request.user.company.name).count()
+    })
 
 
 
