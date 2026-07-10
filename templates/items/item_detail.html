@@ -1,0 +1,106 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Item Details - Akaunting{% endblock %}
+
+{% block content %}
+<div class="row g-5 py-4 text-start">
+    <div class="col-lg-8">
+        <!-- Header -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center gap-2">
+                <h2 class="fw-bold mb-0 text-dark" style="font-family: 'Outfit', sans-serif;">Item Details</h2>
+                <span class="badge bg-secondary text-capitalize ms-2">{{ item.type }}</span>
+            </div>
+            {% if perms.my_account.change_item %}
+            <a href="{% url 'item_edit' item.id %}" class="btn btn-outline-primary fw-semibold"><i class="bi bi-pencil me-1"></i> Edit Item</a>
+            {% endif %}
+        </div>
+
+        <!-- General Section -->
+        <div class="card border-0 bg-white shadow-sm p-4 rounded-3 mb-4">
+            <h4 class="fw-bold border-bottom pb-2 mb-3 text-secondary" style="font-family: 'Outfit', sans-serif;">General</h4>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <span class="d-block text-muted small fw-semibold uppercase">NAME</span>
+                    <span class="fs-5 fw-bold text-dark">{{ item.name }}</span>
+                </div>
+                <div class="col-md-6">
+                    <span class="d-block text-muted small fw-semibold">CATEGORY</span>
+                    <span class="text-dark">{{ item.category.name|default:"—" }}</span>
+                </div>
+                <div class="col-12">
+                    <span class="d-block text-muted small fw-semibold">DESCRIPTION</span>
+                    <p class="text-dark mb-0 bg-light p-3 rounded" style="white-space: pre-line;">{{ item.description|default:"No description provided." }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Section -->
+        <div class="card border-0 bg-white shadow-sm p-4 rounded-3 mb-4">
+            <h4 class="fw-bold border-bottom pb-2 mb-3 text-secondary" style="font-family: 'Outfit', sans-serif;">Billing Information</h4>
+            <div class="row g-4">
+                <!-- Sale Info -->
+                <div class="col-md-6">
+                    <div class="p-3 border rounded">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" {% if item.sale_enabled %}checked{% endif %} disabled>
+                            <label class="form-check-label fw-bold text-dark">Sale Information</label>
+                        </div>
+                        <div class="mt-2">
+                            <span class="d-block text-muted small">Sale Price</span>
+                            <span class="fs-6 fw-semibold text-success">₹{{ item.sale_price|default:"0.00" }}</span>
+                        </div>
+                        <div class="mt-2">
+                            <span class="d-block text-muted small">Income Account</span>
+                            <span class="text-dark">{{ item.income_account.account_name|default:"—" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Purchase Info -->
+                <div class="col-md-6">
+                    <div class="p-3 border rounded">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" {% if item.purchase_enabled %}checked{% endif %} disabled>
+                            <label class="form-check-label fw-bold text-dark">Purchase Information</label>
+                        </div>
+                        <div class="mt-2">
+                            <span class="d-block text-muted small">Purchase Price</span>
+                            <span class="fs-6 fw-semibold text-danger">₹{{ item.purchase_price|default:"0.00" }}</span>
+                        </div>
+                        <div class="mt-2">
+                            <span class="d-block text-muted small">Expense Account</span>
+                            <span class="text-dark">{{ item.expense_account.account_name|default:"—" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tax -->
+                <div class="col-md-6">
+                    <span class="d-block text-muted small fw-semibold">TAX</span>
+                    <span class="text-dark">{{ item.tax.tax_name|default:"—" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-start align-items-center gap-3 pt-3">
+            <a href="{% url 'items_list' %}" class="btn btn-secondary px-4 fw-semibold">Back to List</a>
+        </div>
+    </div>
+
+    <!-- Right Side Illustration Box -->
+    <div class="col-lg-4 d-flex flex-column align-items-center justify-content-start pt-5">
+        <div class="card border-0 bg-white shadow-sm p-4 rounded-3 text-center" style="max-width: 320px;">
+            <svg class="mb-4" width="160" height="130" viewBox="0 0 160 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="40" y="40" width="80" height="60" rx="4" fill="#ca8a04"/>
+                <line x1="80" y1="40" x2="80" y2="100" stroke="#fef08a" stroke-width="2"/>
+                <circle cx="80" cy="20" r="10" fill="#fbcfe8"/>
+                <path d="M70 30 L90 30 L85 60 L75 60 Z" fill="#60a5fa"/>
+            </svg>
+            <h5 class="fw-bold mb-2">Inventory</h5>
+            <p class="text-secondary small mb-3">Stock management, SKU, item groups and variants, transfer orders, adjustments, warehouses, histories, and more.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -56,6 +56,8 @@ class RBACMiddleware:
             'inventory': 'my_account.view_item',
             'item_create': 'my_account.add_item',
             'item_import': 'my_account.add_item',
+            'item_edit': 'my_account.change_item',
+            'item_detail': 'my_account.view_item',
             
             # Invoices
             'invoices_list': 'my_account.view_invoice',

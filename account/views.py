@@ -449,6 +449,42 @@ def item_create_view(request):
 
 
 @login_required
+def item_edit_view(request, id):
+    try:
+        company = request.user.company
+        if company.onboarding_step < 3:
+            return redirect('landing')
+    except Company.DoesNotExist:
+        return redirect('company_setup')
+        
+    item = get_object_or_404(Item, id=id, company__name=company.name)
+    
+    if request.method == 'POST':
+        form = ItemForm(request.POST, instance=item, company=company)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Item Updated Successfully")
+            return redirect('items_list')
+    else:
+        form = ItemForm(instance=item, company=company)
+        
+    return render(request, 'items/new_item.html', {'form': form, 'company': company})
+
+
+@login_required
+def item_detail_view(request, id):
+    try:
+        company = request.user.company
+        if company.onboarding_step < 3:
+            return redirect('landing')
+    except Company.DoesNotExist:
+        return redirect('company_setup')
+        
+    item = get_object_or_404(Item, id=id, company__name=company.name)
+    return render(request, 'items/item_detail.html', {'item': item, 'company': company})
+
+
+@login_required
 def item_import_view(request):
     try:
         company = request.user.company
@@ -2554,7 +2590,7 @@ def mark_notification_read(request, id):
     notif.save()
     return JsonResponse({
         'status': 'success',
-        'unread_count': Notification.objects.filter(recipient=request.user, read_status=False, company__name=request.user.company.name).count()
+        'unread_count': Notification.objects.filter(recipient=request.user, read_status=False).count()
     })
 
 
