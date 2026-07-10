@@ -44,7 +44,7 @@
             {% endif %}
             
             <!-- Sales Dropdown -->
-            {% if perms.my_account.view_invoice or perms.my_account.view_customer %}
+            {% if perms.my_account.view_invoice or perms.my_account.view_customer or perms.my_account.view_estimate %}
             <li class="nav-item">
                 <div class="dropdown-header-link d-flex align-items-center justify-content-between px-3 py-2.5 rounded-3" data-target="#sales-dropdown">
                     <div class="d-flex align-items-center gap-3">
@@ -56,6 +56,9 @@
                 <ul class="nav flex-column sidebar-dropdown-menu ps-5" id="sales-dropdown">
                     {% if perms.my_account.view_invoice %}
                     <li class="nav-item"><a href="{% url 'invoices_list' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'invoices_list' or request.resolver_match.url_name == 'invoice_create' or request.resolver_match.url_name == 'invoice_detail' or request.resolver_match.url_name == 'invoice_edit' or request.resolver_match.url_name == 'invoice_import' %}active{% endif %}">Invoices</a></li>
+                    {% endif %}
+                    {% if perms.my_account.view_estimate %}
+                    <li class="nav-item"><a href="{% url 'estimates_list' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'estimates_list' or request.resolver_match.url_name == 'estimate_create' or request.resolver_match.url_name == 'estimate_detail' or request.resolver_match.url_name == 'estimate_edit' or request.resolver_match.url_name == 'estimate_import' %}active{% endif %}">Estimate / Quotation</a></li>
                     {% endif %}
                     {% if perms.my_account.view_customer %}
                     <li class="nav-item"><a href="{% url 'customer_home' %}" class="nav-link py-2 {% if request.resolver_match.url_name == 'customer_home' or request.resolver_match.url_name == 'customer_create' or request.resolver_match.url_name == 'customers_list' or request.resolver_match.url_name == 'customer_edit' or request.resolver_match.url_name == 'customer_import' %}active{% endif %}">Customers</a></li>

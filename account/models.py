@@ -538,6 +538,55 @@ class Notification(models.Model):
         return f"{self.title} - {self.recipient.username}"
 
 
+class Estimate(models.Model):
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('sent', 'Sent'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+        ('expired', 'Expired'),
+        ('converted', 'Converted'),
+    ]
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='estimates')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='estimates')
+    estimate_number = models.CharField(max_length=100)
+    issue_date = models.DateField()
+    expiry_date = models.DateField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    subtotal = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    discount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    tax_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    total = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    currency = models.CharField(max_length=10, default='INR')
+    notes = models.TextField(blank=True, null=True)
+    invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True, related_name='estimates')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='created_estimates')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['company', 'estimate_number'], name='unique_estimate_number_per_company')
+        ]
+
+    def __str__(self):
+        return self.estimate_number
+
+
+class EstimateItem(models.Model):
+    estimate = models.ForeignKey(Estimate, on_delete=models.CASCADE, related_name='items')
+    item = models.ForeignKey(Item, on_delete=models.SET_NULL, blank=True, null=True, related_name='estimate_items')
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=15, decimal_places=2)
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+
+    def __str__(self):
+        return self.name
+
+
 
 
 

@@ -738,6 +738,32 @@ class DashboardForm(forms.ModelForm):
         return name
 
 
+from .models import Estimate, EstimateItem
+
+class EstimateForm(forms.ModelForm):
+    class Meta:
+        model = Estimate
+        fields = [
+            'customer', 'estimate_number', 'issue_date', 'expiry_date', 
+            'currency', 'notes', 'status'
+        ]
+        widgets = {
+            'customer': forms.Select(attrs={'class': 'form-select'}),
+            'estimate_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Estimate Number'}),
+            'issue_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'expiry_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'currency': forms.Select(choices=[('INR', 'Indian Rupee'), ('USD', 'US Dollar')], attrs={'class': 'form-select'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Enter Notes'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.company = kwargs.pop('company', None)
+        super().__init__(*args, **kwargs)
+        if self.company:
+            self.fields['customer'].queryset = Customer.objects.filter(company__name=self.company.name)
+
+
 
 
 

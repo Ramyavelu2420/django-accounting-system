@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth.models import User, Group
-from .models import Invoice, Bill, Vendor, Customer, IncomeTransaction, ExpenseTransaction, Transfer, Company, Item, Category, InvoiceCategory, Account
+from .models import Invoice, Bill, Vendor, Customer, IncomeTransaction, ExpenseTransaction, Transfer, Company, Item, Category, InvoiceCategory, Account, Estimate
 from .services import NotificationService
 
 def get_users_in_group(group_name):
@@ -248,4 +248,52 @@ def user_created_signal(sender, instance, created, **kwargs):
                 message=f"New user {instance.username} has registered",
                 url=f"/admin/",
                 notification_type='User Created'
+            )
+
+
+@receiver(post_save, sender=Estimate)
+def estimate_saved_signal(sender, instance, created, **kwargs):
+    company = instance.company
+    created_by = instance.created_by or company.user
+    
+    if created:
+        is_admin = created_by.is_superuser or created_by.groups.filter(name='Admin').exists()
+        is_sales = created_by.groups.filter(name='Sales Executive').exists()
+        
+        if is_sales:
+            notify_roles(
+                roles=['Admin'],
+                sender=created_by,
+                company=company,
+                module='Estimates',
+                object_id=instance.id,
+                title='Estimate Created',
+                message=f"Sales Executive created Estimate {instance.estimate_number}.",
+                url=f"/sales/estimates/{instance.id}/",
+                notification_type='Estimate Created'
+            )
+        elif is_admin:
+            notify_roles(
+                roles=['Sales Executive'],
+                sender=created_by,
+                company=company,
+                module='Estimates',
+                object_id=instance.id,
+                title='Estimate Created',
+                message=f"Admin created Estimate {instance.estimate_number}.",
+                url=f"/sales/estimates/{instance.id}/",
+                notification_type='Estimate Created'
+            )
+    else:
+        if instance.status == 'accepted':
+            notify_roles(
+                roles=['Sales Executive'],
+                sender=created_by,
+                company=company,
+                module='Estimates',
+                object_id=instance.id,
+                title='Estimate Accepted',
+                message=f"Estimate {instance.estimate_number} has been accepted.",
+                url=f"/sales/estimates/{instance.id}/",
+                notification_type='Estimate Accepted'
             )

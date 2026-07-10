@@ -67,6 +67,15 @@ class RBACMiddleware:
             'invoice_edit': 'my_account.change_invoice',
             'invoice_delete': 'my_account.delete_invoice',
             
+            # Estimates
+            'estimates_list': 'my_account.view_estimate',
+            'estimate_detail': 'my_account.view_estimate',
+            'estimate_create': 'my_account.add_estimate',
+            'estimate_import': 'my_account.add_estimate',
+            'estimate_edit': 'my_account.change_estimate',
+            'estimate_delete': 'my_account.delete_estimate',
+            'estimate_convert': 'my_account.convert_estimate',
+            
             # Customers
             'customer_home': 'my_account.view_customer',
             'customers_list': 'my_account.view_customer',

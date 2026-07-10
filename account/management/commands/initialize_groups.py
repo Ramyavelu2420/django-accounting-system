@@ -2,7 +2,7 @@ import sys
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from account.models import Customer, Invoice, Vendor, Bill, Account, Transfer, Reconciliation, Report, Item, IncomeTransaction, ExpenseTransaction
+from account.models import Customer, Invoice, Vendor, Bill, Account, Transfer, Reconciliation, Report, Item, IncomeTransaction, ExpenseTransaction, Estimate
 
 class Command(BaseCommand):
     help = 'Initialize Django Groups and Permissions for Accounting App'
@@ -20,6 +20,7 @@ class Command(BaseCommand):
         reconciliation_ct = ContentType.objects.get_for_model(Reconciliation)
         report_ct = ContentType.objects.get_for_model(Report)
         item_ct = ContentType.objects.get_for_model(Item)
+        estimate_ct = ContentType.objects.get_for_model(Estimate)
 
         # Create custom permissions programmatically
         custom_perms = [
@@ -41,6 +42,10 @@ class Command(BaseCommand):
             ('import_transfer', 'Can import transfer', transfer_ct),
             # Report custom permissions
             ('export_report', 'Can export report', report_ct),
+            # Estimate custom permissions
+            ('convert_estimate', 'Can convert estimate', estimate_ct),
+            ('import_estimate', 'Can import estimate', estimate_ct),
+            ('export_estimate', 'Can export estimate', estimate_ct),
         ]
 
         created_perms = {}
@@ -77,6 +82,7 @@ class Command(BaseCommand):
                     'add_reconciliation', 'change_reconciliation', 'delete_reconciliation', 'view_reconciliation',
                     'add_report', 'change_report', 'delete_report', 'view_report', 'export_report',
                     'add_item', 'change_item', 'delete_item', 'view_item',
+                    'add_estimate', 'change_estimate', 'delete_estimate', 'view_estimate', 'convert_estimate', 'import_estimate', 'export_estimate',
                 ]
             },
             'Sales Executive': {
@@ -87,6 +93,8 @@ class Command(BaseCommand):
                     'add_invoice', 'change_invoice', 'delete_invoice', 'view_invoice', 'approve_invoice', 'import_invoice', 'export_invoice',
                     # Items
                     'view_item',
+                    # Estimates
+                    'add_estimate', 'change_estimate', 'view_estimate', 'convert_estimate', 'import_estimate', 'export_estimate',
                 ]
             },
             'Account Manager': {
@@ -106,6 +114,8 @@ class Command(BaseCommand):
                     'view_invoice',
                     # Items
                     'view_item',
+                    # Estimates (View Only)
+                    'view_estimate',
                 ]
             },
             'Purchase Executive': {

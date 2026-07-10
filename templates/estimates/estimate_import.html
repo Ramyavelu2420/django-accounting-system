@@ -1,0 +1,78 @@
+{% extends 'layouts/admin.html' %}
+{% load static %}
+
+{% block title %}Import Estimates - Akaunting{% endblock %}
+
+{% block styles %}
+<link href="{% static 'css/invoice.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row align-items-center g-5 py-4 text-start">
+    <!-- Left Section -->
+    <div class="col-lg-5 d-flex justify-content-center align-items-center">
+        <svg class="img-fluid" width="320" height="260" viewBox="0 0 320 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="40" width="180" height="120" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/>
+            <circle cx="32" cy="50" r="3" fill="#ef4444"/>
+            <circle cx="40" cy="50" r="3" fill="#f59e0b"/>
+            <circle cx="48" cy="50" r="3" fill="#10b981"/>
+            <rect x="28" y="70" width="164" height="78" rx="4" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="4 4"/>
+            <path d="M110 110 L110 95 L100 95 L110 80 L120 95 L110 95" fill="#60a5fa"/>
+            <circle cx="210" cy="110" r="12" fill="#fdba74"/>
+            <path d="M200 122 L220 122 L215 180 L205 180 Z" fill="#1e3a8a"/>
+            <line x1="207" y1="180" x2="202" y2="230" stroke="#1e293b" stroke-width="5"/>
+            <line x1="213" y1="180" x2="218" y2="230" stroke="#1e293b" stroke-width="5"/>
+            <line x1="200" y1="130" x2="170" y2="120" stroke="#fdba74" stroke-width="4"/>
+        </svg>
+    </div>
+
+    <!-- Right Section -->
+    <div class="col-lg-7">
+        <div class="d-flex align-items-center gap-2 mb-4">
+            <h2 class="fw-bold mb-0 text-dark" style="font-family: 'Outfit', sans-serif;">Import Estimates</h2>
+            <i class="bi bi-star text-secondary fs-4"></i>
+        </div>
+
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show small" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            <div class="info-callout mb-4 d-flex align-items-start gap-2">
+                <i class="bi bi-info-circle-fill text-primary fs-5 mt-0.5"></i>
+                <div>
+                    You can <a href="#" class="fw-bold text-decoration-none">download</a> the sample file and review the <a href="#" class="fw-bold text-decoration-none">documents</a> for detailed information.
+                </div>
+            </div>
+
+            <!-- Drag & Drop Uploader Box -->
+            <div class="import-drop-zone mb-4" id="import-drop-zone">
+                <input type="file" name="import_file" id="import-file-input" class="d-none" accept=".xls,.xlsx">
+                <div id="import-drop-text">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <h5 class="fw-bold text-dark mb-1">Upload a file <span class="text-secondary fw-normal">or drag and drop</span></h5>
+                    <p class="text-muted small">XLS, XLSX up to 500 rows</p>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-end align-items-center gap-3">
+                <a href="{% url 'estimates_list' %}" class="btn btn-link text-secondary text-decoration-none fw-semibold">Cancel</a>
+                <button type="submit" class="btn btn-success px-5 fw-semibold" style="background-color: var(--success-color);">Import</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/estimate.js' %}"></script>
+{% endblock %}

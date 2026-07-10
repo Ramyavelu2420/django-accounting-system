@@ -2594,6 +2594,331 @@ def mark_notification_read(request, id):
     })
 
 
+from .models import Estimate, EstimateItem
+from .forms import EstimateForm
+
+@login_required
+def estimates_list_view(request):
+    try:
+        company = request.user.company
+        if company.onboarding_step < 3:
+            return redirect('landing')
+    except Company.DoesNotExist:
+        return redirect('company_setup')
+    
+    estimates = Estimate.objects.filter(company__name=company.name).order_by('-id')
+    return render(request, 'estimates/estimate_list.html', {'company': company, 'estimates': estimates})
+
+
+@login_required
+def estimate_create_view(request):
+    try:
+        company = request.user.company
+        if company.onboarding_step < 3:
+            return redirect('landing')
+    except Company.DoesNotExist:
+        return redirect('company_setup')
+
+    last_est = Estimate.objects.filter(company__name=company.name).order_by('id').last()
+    if last_est and last_est.estimate_number.startswith('EST-'):
+        try:
+            num = int(last_est.estimate_number.split('-')[1])
+            next_num = num + 1
+        except Exception:
+            next_num = 1
+    else:
+        next_num = 1
+    next_estimate_number = f"EST-{next_num:06d}"
+
+    if request.method == 'POST':
+        form = EstimateForm(request.POST, company=company)
+        if form.is_valid():
+            from django.db import transaction
+            try:
+                with transaction.atomic():
+                    estimate = form.save(commit=False)
+                    estimate.company = company
+                    estimate.created_by = request.user
+                    
+                    estimate.subtotal = request.POST.get('subtotal', 0.00)
+                    estimate.discount = request.POST.get('discount', 0.00)
+                    estimate.tax_amount = request.POST.get('tax_amount', 0.00)
+                    estimate.total = request.POST.get('total', 0.00)
+                    estimate.save()
+
+                    items_json = request.POST.get('items_data')
+                    if items_json:
+                        items_data = json.loads(items_json)
+                        for item_data in items_data:
+                            item_id = item_data.get('item_id')
+                            item_obj = Item.objects.filter(id=item_id).first() if item_id else None
+                            EstimateItem.objects.create(
+                                estimate=estimate,
+                                item=item_obj,
+                                name=item_data.get('name', ''),
+                                description=item_data.get('description', ''),
+                                quantity=item_data.get('quantity', 1),
+                                price=item_data.get('price', 0.00),
+                                amount=item_data.get('amount', 0.00)
+                            )
+
+                messages.success(request, "Estimate Created Successfully")
+                return redirect('estimates_list')
+            except Exception as e:
+                messages.error(request, f"Error saving estimate: {str(e)}")
+    else:
+        form = EstimateForm(company=company, initial={
+            'estimate_number': next_estimate_number,
+            'issue_date': timezone.now().strftime('%Y-%m-%d'),
+            'expiry_date': timezone.now().strftime('%Y-%m-%d'),
+            'status': 'draft'
+        })
+    
+    customers = Customer.objects.filter(company__name=company.name)
+    items = Item.objects.filter(company__name=company.name)
+    customer_form = CustomerForm()
+
+    return render(request, 'estimates/new_estimate.html', {
+        'form': form,
+        'company': company,
+        'customers': customers,
+        'items': items,
+        'customer_form': customer_form
+    })
+
+
+@login_required
+def estimate_edit_view(request, id):
+    try:
+        company = request.user.company
+    except Company.DoesNotExist:
+        return redirect('company_setup')
+    
+    estimate = get_object_or_404(Estimate, id=id, company__name=company.name)
+    if estimate.status == 'converted':
+        messages.error(request, "Converted estimates cannot be edited.")
+        return redirect('estimates_list')
+
+    if request.method == 'POST':
+        form = EstimateForm(request.POST, instance=estimate, company=company)
+        if form.is_valid():
+            from django.db import transaction
+            try:
+                with transaction.atomic():
+                    estimate = form.save(commit=False)
+                    estimate.subtotal = request.POST.get('subtotal', 0.00)
+                    estimate.discount = request.POST.get('discount', 0.00)
+                    estimate.tax_amount = request.POST.get('tax_amount', 0.00)
+                    estimate.total = request.POST.get('total', 0.00)
+                    estimate.save()
+
+                    estimate.items.all().delete()
+                    items_json = request.POST.get('items_data')
+                    if items_json:
+                        items_data = json.loads(items_json)
+                        for item_data in items_data:
+                            item_id = item_data.get('item_id')
+                            item_obj = Item.objects.filter(id=item_id).first() if item_id else None
+                            EstimateItem.objects.create(
+                                estimate=estimate,
+                                item=item_obj,
+                                name=item_data.get('name', ''),
+                                description=item_data.get('description', ''),
+                                quantity=item_data.get('quantity', 1),
+                                price=item_data.get('price', 0.00),
+                                amount=item_data.get('amount', 0.00)
+                            )
+
+                messages.success(request, "Estimate Updated Successfully")
+                return redirect('estimate_detail', id=estimate.id)
+            except Exception as e:
+                messages.error(request, f"Error updating estimate: {str(e)}")
+    else:
+        form = EstimateForm(instance=estimate, company=company)
+    
+    customers = Customer.objects.filter(company__name=company.name)
+    items = Item.objects.filter(company__name=company.name)
+    customer_form = CustomerForm()
+
+    return render(request, 'estimates/new_estimate.html', {
+        'form': form,
+        'estimate': estimate,
+        'company': company,
+        'customers': customers,
+        'items': items,
+        'customer_form': customer_form
+    })
+
+
+@login_required
+def estimate_detail_view(request, id):
+    try:
+        company = request.user.company
+    except Company.DoesNotExist:
+        return redirect('company_setup')
+    
+    estimate = get_object_or_404(Estimate, id=id, company__name=company.name)
+    return render(request, 'estimates/estimate_detail.html', {'company': company, 'estimate': estimate})
+
+
+@login_required
+def estimate_delete_view(request, id):
+    try:
+        company = request.user.company
+    except Company.DoesNotExist:
+        return redirect('company_setup')
+    
+    estimate = get_object_or_404(Estimate, id=id, company__name=company.name)
+    estimate.delete()
+    messages.success(request, "Estimate Deleted Successfully")
+    return redirect('estimates_list')
+
+
+@login_required
+def estimate_convert_view(request, id):
+    try:
+        company = request.user.company
+    except Company.DoesNotExist:
+        return redirect('company_setup')
+    
+    estimate = get_object_or_404(Estimate, id=id, company__name=company.name)
+    if estimate.status == 'converted':
+        messages.error(request, "This estimate has already been converted to an invoice.")
+        return redirect('estimates_list')
+    
+    last_invoice = Invoice.objects.filter(company=company).order_by('id').last()
+    if last_invoice and last_invoice.invoice_number.startswith('INV-'):
+        try:
+            num = int(last_invoice.invoice_number.split('-')[1])
+            next_num = num + 1
+        except Exception:
+            next_num = 1
+    else:
+        next_num = 1
+    next_invoice_number = f"INV-{next_num:06d}"
+    
+    from django.db import transaction
+    try:
+        with transaction.atomic():
+            invoice = Invoice.objects.create(
+                company=company,
+                customer=estimate.customer,
+                invoice_number=next_invoice_number,
+                invoice_date=timezone.now().date(),
+                due_date=timezone.now().date(),
+                subtotal=estimate.subtotal,
+                discount=estimate.discount,
+                tax_amount=estimate.tax_amount,
+                total=estimate.total,
+                currency=estimate.currency,
+                notes=estimate.notes,
+                created_by=request.user
+            )
+            
+            for est_item in estimate.items.all():
+                InvoiceItem.objects.create(
+                    invoice=invoice,
+                    item=est_item.item,
+                    name=est_item.name,
+                    description=est_item.description,
+                    quantity=est_item.quantity,
+                    price=est_item.price,
+                    amount=est_item.amount
+                )
+                
+            estimate.status = 'converted'
+            estimate.invoice = invoice
+            estimate.save()
+            
+            from .signals import notify_roles
+            notify_roles(
+                roles=['Account Manager'],
+                sender=request.user,
+                company=company,
+                module='Invoices',
+                object_id=invoice.id,
+                title='Estimate Converted',
+                message=f"Estimate {estimate.estimate_number} has been converted into Invoice {invoice.invoice_number}.",
+                url=f"/sales/invoices/{invoice.id}/",
+                notification_type='Invoice Created'
+            )
+            
+        messages.success(request, f"Estimate successfully converted to Invoice {invoice.invoice_number}")
+        return redirect('invoice_detail', id=invoice.id)
+    except Exception as e:
+        messages.error(request, f"Conversion failed: {str(e)}")
+        return redirect('estimate_detail', id=estimate.id)
+
+
+@login_required
+def estimate_import_view(request):
+    try:
+        company = request.user.company
+    except Company.DoesNotExist:
+        return redirect('company_setup')
+        
+    if request.method == 'POST':
+        import_file = request.FILES.get('import_file')
+        if not import_file:
+            messages.error(request, "Please select an Excel file to import.")
+            return redirect('estimate_import')
+            
+        import openpyxl
+        try:
+            wb = openpyxl.load_workbook(import_file, read_only=True)
+            sheet = wb.active
+            
+            imported = 0
+            skipped = 0
+            failed = 0
+            
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                if not row or not any(row):
+                    continue
+                    
+                customer_name = row[0]
+                estimate_number = row[1]
+                issue_date_val = row[2]
+                expiry_date_val = row[3]
+                total_val = row[4]
+                notes_val = row[5] if len(row) > 5 else ""
+                
+                if not customer_name or not estimate_number:
+                    failed += 1
+                    continue
+                    
+                if Estimate.objects.filter(company=company, estimate_number=estimate_number).exists():
+                    skipped += 1
+                    continue
+                    
+                customer, created = Customer.objects.get_or_create(company=company, name=customer_name)
+                
+                try:
+                    Estimate.objects.create(
+                        company=company,
+                        customer=customer,
+                        estimate_number=estimate_number,
+                        issue_date=issue_date_val if issue_date_val else timezone.now().date(),
+                        expiry_date=expiry_date_val if expiry_date_val else timezone.now().date(),
+                        total=total_val if total_val else 0.00,
+                        subtotal=total_val if total_val else 0.00,
+                        notes=notes_val,
+                        created_by=request.user,
+                        status='draft'
+                    )
+                    imported += 1
+                except Exception:
+                    failed += 1
+                    
+            messages.success(request, f"Import Summary - Imported: {imported}, Skipped: {skipped}, Failed: {failed}")
+            return redirect('estimates_list')
+        except Exception as e:
+            messages.error(request, f"Failed to read Excel file: {str(e)}")
+            return redirect('estimate_import')
+            
+    return render(request, 'estimates/estimate_import.html', {'company': company})
+
+
 
 
 
